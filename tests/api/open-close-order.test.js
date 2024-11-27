@@ -1,5 +1,5 @@
 const axios = require("axios");
-const { generateAuthToken } = require("./authTgToken");
+const { generateAuthToken } = require("../helpers/authTgToken");
 
 let authTgToken;
 let positionId;
