@@ -23,6 +23,32 @@ class InvestmentAPI {
             },
             validateStatus: status => status >= 200 && status < 500
         });
+        this.investClient = null;
+        this.helperClient = null;
+    }
+
+    async _initializeClients() {
+        this.investClient = await getClient('invest');
+        this.helperClient = await getClient('helper');
+    }
+
+    async setupInstrumentPrice(symbol="TEST2USDT.FTS", price=1) {
+        if (!this.investClient || !this.helperClient) {
+            await this._initializeClients();
+        }
+
+        const quote = await this.helperClient.StringToDecimal({
+            "Value": `${price}`
+        });
+
+        const makePriceRequest = {
+            "Symbol": symbol,
+            "Ask": quote['Value'],
+            "Bid": quote['Value'],
+            "Last": quote['Value']
+        };
+
+        return await this.investClient.MakePrice(makePriceRequest);
     }
 
     async openMarketPosition(positionData) {
@@ -72,12 +98,8 @@ class InvestmentAPI {
 describe('Investment API Tests', () => {
     let api;
     let positionId;
-    // let investClient;
-    // let helperClient;
 
     beforeAll(async () => {
-        // investClient = await getClient('invest');
-        // helperClient = await getClient('helper');
         const authTgToken = generateAuthToken();
         api = new InvestmentAPI(authTgToken);
         logger.info(`Generated token: ${authTgToken}`);
@@ -88,16 +110,7 @@ describe('Investment API Tests', () => {
     });
 
     it("should open market position", async () => {
-        // let quote = await helperClient.StringToDecimal({
-        //     "Value": "1"
-        // });
-        // const makePriceRequest = {
-        //     "Symbol": "TEST2USDT.FTS",
-        //     "Ask": quote['Value'],
-        //     "Bid": quote['Value'],
-        //     "Last": quote['Value']
-        // };
-        // const makePrice = await investClient.MakePrice(makePriceRequest);
+        // await api.setupInstrumentPrice("TEST2USDT.FTS", 1)
 
         const positionData = {
             symbol: "DOGEUSDT.FTS",
