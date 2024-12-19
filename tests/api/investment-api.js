@@ -128,6 +128,28 @@ class InvestmentAPI {
     }
   }
 
+  async openPendingStopPosition(positionData) {
+    try {
+      const response = await this.axiosInstance.post(
+        API_CONFIG.endpoints.openPendingStopPosition,
+        positionData
+      );
+      logger.info(`Creation of pending stop position:`, {
+        data: {
+          url: API_CONFIG.endpoints.openPendingStopPosition,
+          data: positionData,
+        },
+        response: response.data,
+      });
+      return response;
+    } catch (error) {
+      logger.error(
+        `Failed to open pending position: ${error.response?.data || error.message}`
+      );
+      throw error;
+    }
+  }
+
   async getPositionById(positionId) {
     try {
       const url = `${API_CONFIG.baseURL}/${API_CONFIG.endpoints.getPosition}?positionId=${positionId}`;
