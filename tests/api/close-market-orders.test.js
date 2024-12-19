@@ -293,55 +293,7 @@ describe('Closing market positions', () => {
 
     it("should close market sell position automatically if price deviates by Stop Out", async () => {
         const initialPrice = 1; // Начальная цена инструмента
-        const deviationPercentage = 0.16; // Stop Out
-        const upperLimit = initialPrice * (1 + deviationPercentage);
-
-        // Устанавливаем начальную цену
-        await api.setupInstrumentPrice("TEST2USDT.FTS", initialPrice);
-
-        // Открываем sell позицию
-        const positionData = {
-            symbol: "TEST2USDT.FTS",
-            amount: 10,
-            amountAssetId: "SMPL",
-            multiplicator: 5,
-            direction: 2,
-        };
-
-        const openResponse = await api.openMarketPosition(positionData);
-        expect(openResponse.status).toBe(200);
-        await api.setupInstrumentPrice("TEST2USDT.FTS", initialPrice);
-
-        positionId = openResponse.data?.data?.position?.id;
-        logger.info(`Position ID: ${positionId}`);
-        expect(positionId).toBeDefined();
-
-        await new Promise(resolve => setTimeout(resolve, 3000));
-
-        // Устанавливаем цену, которая превышает верхнюю границу
-        await api.setupInstrumentPrice("TEST2USDT.FTS", upperLimit + 0.01);
-        logger.info(`Instrument price set to: ${upperLimit + 0.01}`);
-
-        await new Promise(resolve => setTimeout(resolve, 3000));
-
-        // Вызываем запрос на получение информации о позиции
-        const getPositionResponse = await api.getPositionById(positionId);
-        expect(getPositionResponse.status).toBe(200);
-        logger.info(`Position ${positionId} closed successfully.`);
-        logger.info(`Position data: ${JSON.stringify(getPositionResponse.data)}`);
-
-        // Проверяем причину закрытия позиции
-        const closeReason = getPositionResponse.data?.data?.position?.closeReason;
-        logger.info(`Position close reason: ${closeReason}`);
-        expect(closeReason).toBe(4); // Undefined (0), StopLoss (1), TakeProfit (2), MarketClose (3), Liquidation (4)
-
-        logger.info(`Position ${positionId} closed due to price deviation.`);
-    }, 15000);
-
-    it("should close market buy position automatically if price deviates by Stop Out", async () => {
-        const initialPrice = 1; // Начальная цена инструмента
-        const deviationPercentage = 0.17; // Stop Out
-        const lowerLimit = initialPrice * (1 - deviationPercentage);
+        const instrumentStopOut = 0.1 // Stop Out
 
         // Устанавливаем начальную цену
         await api.setupInstrumentPrice("TEST2USDT.FTS", initialPrice);
@@ -352,7 +304,7 @@ describe('Closing market positions', () => {
             amount: 10,
             amountAssetId: "SMPL",
             multiplicator: 10,
-            direction: 1,
+            direction: 2, // Undefined (0), Buy (1), Sell (2)
         };
 
         const openResponse = await api.openMarketPosition(positionData);
@@ -363,20 +315,95 @@ describe('Closing market positions', () => {
         logger.info(`Position ID: ${positionId}`);
         expect(positionId).toBeDefined();
 
-        // Устанавливаем цену меньше нижней границы
-        await api.setupInstrumentPrice("TEST2USDT.FTS", lowerLimit - 0.01);
-        logger.info(`Instrument price set to: ${lowerLimit - 0.01}`);
+        await new Promise(resolve => setTimeout(resolve, 3000));
+
+        // Вызываем запрос на получение информации о позиции
+        const getPositionResponse = await api.getPositionById(positionId);
+        expect(getPositionResponse.status).toBe(200);
+
+        const position = getPositionResponse.data?.data?.position;
+        const { openPrice, volume, multiplicator, openFee, rollOver, closeFee } = position;
+
+        // Рассчитываем stopOutPl и StopOutPrice
+        const stopOutPl = -volume / multiplicator * (1 - instrumentStopOut);
+        const buySell = position.direction === 1 ? 1 : -1; // 1 for buy, -1 for sell
+        const StopOutPrice = parseFloat(
+            (openPrice * (1 + buySell * (stopOutPl + openFee - rollOver + closeFee) / volume)).toFixed(4)
+        );
+
+        logger.info(`Calculated StopOutPrice: ${StopOutPrice}`);
+        logger.info(`Calculated StopOutPrice (formatted): ${StopOutPrice.toFixed(4)}`);
+
+        // Прокидываем новую цену инструмента
+        await api.setupInstrumentPrice("TEST2USDT.FTS", StopOutPrice);
+        logger.info(`Instrument price set to StopOutPrice: ${StopOutPrice}`);
+
+        await new Promise(resolve => setTimeout(resolve, 4000));
+
+        const getClosedPositionResponse = await api.getPositionById(positionId);
+        expect(getClosedPositionResponse.status).toBe(200);
+
+        // Проверяем причину закрытия позиции
+        const closeReason = getClosedPositionResponse.data?.data?.position?.closeReason;
+        logger.info(`Position close reason: ${closeReason}`);
+        expect(closeReason).toBe(4); // Undefined (0), StopLoss (1), TakeProfit (2), MarketClose (3), Liquidation (4)
+
+        logger.info(`Position ${positionId} closed due to price deviation.`);
+    }, 15000);
+
+    it("should close market buy position automatically if price deviates by Stop Out", async () => {
+        const initialPrice = 1; // Начальная цена инструмента
+        const instrumentStopOut = 0.1 // Stop Out
+
+        // Устанавливаем начальную цену
+        await api.setupInstrumentPrice("TEST2USDT.FTS", initialPrice);
+
+        // Открываем buy позицию
+        const positionData = {
+            symbol: "TEST2USDT.FTS",
+            amount: 10,
+            amountAssetId: "SMPL",
+            multiplicator: 10,
+            direction: 1, // Undefined (0), Buy (1), Sell (2)
+        };
+
+        const openResponse = await api.openMarketPosition(positionData);
+        expect(openResponse.status).toBe(200);
+        await api.setupInstrumentPrice("TEST2USDT.FTS", initialPrice);
+
+        positionId = openResponse.data?.data?.position?.id;
+        logger.info(`Position ID: ${positionId}`);
+        expect(positionId).toBeDefined();
 
         await new Promise(resolve => setTimeout(resolve, 3000));
 
         // Вызываем запрос на получение информации о позиции
         const getPositionResponse = await api.getPositionById(positionId);
         expect(getPositionResponse.status).toBe(200);
-        logger.info(`Position ${positionId} closed successfully.`);
-        logger.info(`Position data: ${JSON.stringify(getPositionResponse.data)}`);
+
+        const position = getPositionResponse.data?.data?.position;
+        const { openPrice, volume, multiplicator, openFee, rollOver, closeFee } = position;
+
+        // Рассчитываем stopOutPl и StopOutPrice
+        const stopOutPl = -volume / multiplicator * (1 - instrumentStopOut);
+        const buySell = position.direction === 1 ? 1 : -1; // 1 for buy, -1 for sell
+        const StopOutPrice = parseFloat(
+            (openPrice * (1 + buySell * (stopOutPl + openFee - rollOver + closeFee) / volume)).toFixed(4)
+        );
+
+        logger.info(`Calculated StopOutPrice: ${StopOutPrice}`);
+        logger.info(`Calculated StopOutPrice (formatted): ${StopOutPrice.toFixed(4)}`);
+
+        await api.setupInstrumentPrice("TEST2USDT.FTS", StopOutPrice);
+        logger.info(`Instrument price set to StopOutPrice: ${StopOutPrice}`);
+
+        await new Promise(resolve => setTimeout(resolve, 4000));
+
+        const getClosedPositionResponse = await api.getPositionById(positionId);
+        expect(getClosedPositionResponse.status).toBe(200);
 
         // Проверяем причину закрытия позиции
-        const closeReason = getPositionResponse.data?.data?.position?.closeReason;
+        const closeReason = getClosedPositionResponse.data?.data?.position?.closeReason;
         logger.info(`Position close reason: ${closeReason}`);
         expect(closeReason).toBe(4); // Undefined (0), StopLoss (1), TakeProfit (2), MarketClose (3), Liquidation (4)
 
