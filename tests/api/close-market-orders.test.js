@@ -6,10 +6,10 @@ describe('Closing market positions', () => {
     let api;
     let positionId;
     let status;
-    const takeProfitBuy = 0.95;
-    const stopLossBuy = 1.049;
-    const takeProfitSell = 1.049;
-    const stopLossSell = 0.95
+    const takeProfitBuy = 1.049;
+    const stopLossBuy = 0.95;
+    const takeProfitSell = 0.95;
+    const stopLossSell = 1.049;
 
     beforeAll(async () => {
         const authTgToken = generateAuthToken();
@@ -38,6 +38,7 @@ describe('Closing market positions', () => {
 
         const response = await api.openMarketPosition(positionData);
         expect(response.status).toBe(200);
+        await api.setupInstrumentPrice("TEST2USDT.FTS", 1)
 
         positionId = response.data?.data?.position?.id;
         logger.info(`Position ID: ${positionId}`);
@@ -73,6 +74,7 @@ describe('Closing market positions', () => {
 
         const response = await api.openMarketPosition(positionData);
         expect(response.status).toBe(200);
+        await api.setupInstrumentPrice("TEST2USDT.FTS", 1)
 
         positionId = response.data?.data?.position?.id;
         logger.info(`Position ID: ${positionId}`);
@@ -150,7 +152,7 @@ describe('Closing market positions', () => {
             amount: 100,
             amountAssetId: "SMPL",
             multiplicator: 10,
-            direction: 1, // Undefined (0), Buy (1), Sell (2)
+            direction: 2, // Undefined (0), Buy (1), Sell (2)
             takeProfitType: 1,
             takeProfitValue: takeProfitSell,
             stopLossType: 1,

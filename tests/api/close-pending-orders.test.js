@@ -7,10 +7,10 @@ describe('Closing market positions', () => {
     let positionId;
     let status;
     let openPrice;
-    const takeProfitBuy = 0.95;
-    const stopLossBuy = 1.049;
-    const takeProfitSell = 1.049;
-    const stopLossSell = 0.95
+    const takeProfitBuy = 1.049;
+    const stopLossBuy = 0.95;
+    const takeProfitSell = 0.95;
+    const stopLossSell = 1.049;
 
     beforeAll(async () => {
         const authTgToken = generateAuthToken();
