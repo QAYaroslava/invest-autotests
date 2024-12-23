@@ -25,11 +25,13 @@ class InvestmentAPI {
     });
     this.investClient = null;
     this.helperClient = null;
+    this.positionActionClient = null;
   }
 
   async _initializeClients() {
     this.investClient = await getClient("invest");
     this.helperClient = await getClient("helper");
+    this.positionActionClient = await getClient("positionAction");
   }
 
   closeGRPCConnections() {
@@ -37,6 +39,7 @@ class InvestmentAPI {
       closeAll();
       this.investClient = null;
       this.helperClient = null;
+      this.positionActionClient = null;
     }
   }
 
@@ -57,6 +60,18 @@ class InvestmentAPI {
     };
 
     return await this.investClient.MakePrice(makePriceRequest);
+  }
+
+  async recalculateRollover(positionId) {
+    if (!this.positionActionClient) {
+      await this._initializeClients();
+    }
+
+    const RecalculatePositionRollOverRequest = {
+      PositionId: positionId,
+    };
+
+    return await this.positionActionClient.RecalculatePositionRollOver(RecalculatePositionRollOverRequest);
   }
 
   async openMarketPosition(positionData) {

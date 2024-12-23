@@ -17,6 +17,13 @@ module.exports = {
             package: 'Service.InvestEngine.Prices.Grpc',
             service: 'PriceManagerService'
         },
+        positionAction: {
+            host: process.env.TRADING_GRPC_HOST || 'services-invest-engine-positions.simple-spot.biz',
+            port: process.env.TRADING_GRPC_PORT || 82,
+            protoPath: path.join(__dirname, '../proto/IPositionActionService.proto'),
+            package: 'Service.InvestEngine.Positions.Grpc',
+            service: 'PositionActionService'
+        },
 
     },
     defaultOptions: {
