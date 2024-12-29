@@ -1,25 +1,27 @@
 require('dotenv').config();
 
 const API_CONFIG = {
-    baseURL: process.env.API_BASE_URL || "https://api-uat.simple-spot.biz/api/v1/tg_invest",
-    timeout: parseInt(process.env.API_TIMEOUT || "5000"),
+    baseURL: process.env.API_BASE_URL,
+    timeout: parseInt(process.env.API_TIMEOUT),
     endpoints: {
-        openPosition: process.env.ENDPOINT_OPEN_POSITION || "InvestAction/create-market-open-position",
-        closePosition: process.env.ENDPOINT_CLOSE_POSITION || "InvestAction/create-market-close-position",
-        getPosition: process.env.ENDPOINT_GET_POSITION || "InvestAction/get-position"
+        openPosition: process.env.ENDPOINT_OPEN_POSITION,
+        closePosition: process.env.ENDPOINT_CLOSE_POSITION,
+        getPosition: process.env.ENDPOINT_GET_POSITION,
+        openPendingLimitPosition: process.env.ENDPOINT_OPEN_PENDING_LIMIT,
+        openPendingStopPosition: process.env.ENDPOINT_OPEN_PENDING_STOP
     },
     grpc: {
         helper: {
-            host: process.env.HELPER_GRPC_HOST || 'invest-engine-prices-demo.spot-services.svc.cluster.local',
-            port: parseInt(process.env.HELPER_GRPC_PORT || "80")
+            host: process.env.HELPER_GRPC_HOST,
+            port: parseInt(process.env.HELPER_GRPC_PORT)
         },
         invest: {
-            host: process.env.INVEST_GRPC_HOST || 'invest-engine-prices-demo.spot-services.svc.cluster.local',
-            port: parseInt(process.env.INVEST_GRPC_PORT || "80")
+            host: process.env.INVEST_GRPC_HOST,
+            port: parseInt(process.env.INVEST_GRPC_PORT)
         },
         positionAction: {
-            host: process.env.POSITION_ACTION_GRPC_HOST || 'services-invest-engine-positions.simple-spot.biz',
-            port: parseInt(process.env.POSITION_ACTION_GRPC_PORT || "82")
+            host: process.env.POSITION_ACTION_GRPC_HOST,
+            port: parseInt(process.env.POSITION_ACTION_GRPC_PORT)
         }
     }
 };

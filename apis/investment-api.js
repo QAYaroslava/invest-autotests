@@ -1,22 +1,13 @@
 const axios = require("axios");
 const logger = require("../helpers/logger");
 const { getClient, closeAll } = require("../grpc/grpc-client-factory");
-
-const API_CONFIG = {
-  baseURL: "https://api-uat.simple-spot.biz/api/v1/tg_invest",
-  endpoints: {
-    openPosition: "InvestAction/create-market-open-position",
-    closePosition: "InvestAction/close-active-position",
-    getPosition: "InvestReader/get-position",
-    openPendingLimitPosition: "InvestAction/create-pending-limit-position",
-    openPendingStopPosition: "InvestAction/create-pending-stop-position",
-  },
-};
+const API_CONFIG = require("../config/environment");
 
 class InvestmentAPI {
   constructor(authToken) {
     this.axiosInstance = axios.create({
       baseURL: API_CONFIG.baseURL,
+      timeout: API_CONFIG.timeout,
       headers: {
         Authorization: `Bearer ${authToken}`,
         "Content-Type": "application/json",
@@ -168,12 +159,14 @@ class InvestmentAPI {
   async getPositionById(positionId) {
     try {
       const url = `${API_CONFIG.baseURL}/${API_CONFIG.endpoints.getPosition}?positionId=${positionId}`;
-
       const requestBody = {
         positionId: positionId,
     };
 
-    const response = await this.axiosInstance.post(url, requestBody);
+    const response = await this.axiosInstance.post(
+      url,
+      requestBody
+    );
 
       logger.info("Get position info:", {
         data: {
