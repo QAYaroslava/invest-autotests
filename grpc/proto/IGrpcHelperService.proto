@@ -1,0 +1,19 @@
+syntax = "proto3";
+package MyJetWallet.Sdk.GrpcSchema;
+import "bcl.proto"; // schema for protobuf-net's handling of core .NET types
+
+message Data_DateTime {
+   .bcl.DateTime Value = 1;
+}
+message Data_Decimal {
+   .bcl.Decimal Value = 1;
+}
+message Data_String {
+   string Value = 1;
+}
+service GrpcHelperService {
+   rpc DateTimeToString (Data_DateTime) returns (Data_String);
+   rpc DecimalToString (Data_Decimal) returns (Data_String);
+   rpc StringToDateTime (Data_String) returns (Data_DateTime);
+   rpc StringToDecimal (Data_String) returns (Data_Decimal);
+}

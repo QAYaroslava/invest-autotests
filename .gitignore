@@ -2,3 +2,5 @@
 /coverage
 package-lock.json
 /logs
+.idea
+.vscode

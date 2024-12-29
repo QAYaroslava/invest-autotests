@@ -6,21 +6,21 @@ module.exports = {
         helper: {
             host: API_CONFIG.grpc.helper.host,
             port: API_CONFIG.grpc.helper.port,
-            protoPath: path.join(__dirname, '../proto/IGrpcHelperService.proto'),
+            protoPath: path.join(__dirname, '../grpc/proto/IGrpcHelperService.proto'),
             package: 'MyJetWallet.Sdk.GrpcSchema',
             service: 'GrpcHelperService'
         },
         invest: {
             host: API_CONFIG.grpc.invest.host,
             port: API_CONFIG.grpc.invest.port,
-            protoPath: path.join(__dirname, '../proto/IPriceManagerService.proto'),
+            protoPath: path.join(__dirname, '../grpc/proto/IPriceManagerService.proto'),
             package: 'Service.InvestEngine.Prices.Grpc',
             service: 'PriceManagerService'
         },
         positionAction: {
             host: API_CONFIG.grpc.positionAction.host,
             port: API_CONFIG.grpc.positionAction.port,
-            protoPath: path.join(__dirname, '../proto/IPositionActionService.proto'),
+            protoPath: path.join(__dirname, '../grpc/proto/IPositionActionService.proto'),
             package: 'Service.InvestEngine.Positions.Grpc',
             service: 'PositionActionService'
         },
@@ -34,6 +34,6 @@ module.exports = {
         enums: String,
         defaults: true,
         oneofs: true,
-        includeDirs: [path.join(__dirname, '../proto')]
+        includeDirs: [path.join(__dirname, '../grpc/proto')]
     }
 };

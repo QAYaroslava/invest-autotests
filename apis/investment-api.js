@@ -1,6 +1,6 @@
 const axios = require("axios");
 const logger = require("../helpers/logger");
-const { getClient, closeAll } = require("../helpers/grpc-client-factory");
+const { getClient, closeAll } = require("../grpc/grpc-client-factory");
 
 const API_CONFIG = {
   baseURL: "https://api-uat.simple-spot.biz/api/v1/tg_invest",
