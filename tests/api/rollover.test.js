@@ -1,6 +1,7 @@
 const InvestmentAPI = require('./investment-api');
 const logger = require('../helpers/logger');
 const { generateAuthToken } = require("../helpers/authTgToken");
+const CONSTANTS = require('../../config/constants');
 
 describe('Checking rollover', () => {
     let api;
@@ -22,14 +23,14 @@ describe('Checking rollover', () => {
     });
 
     it("should open market buy position and calculate rollover", async () => {
-        await api.setupInstrumentPrice("TEST2USDT.FTS", 1)
+        await api.setupInstrumentPrice(CONSTANTS.SYMBOL, 1)
 
         const positionData = {
-            symbol: "TEST2USDT.FTS",
+            symbol: CONSTANTS.SYMBOL,
             amount: 100,
-            amountAssetId: "SMPL",
+            amountAssetId: CONSTANTS.ASSET_ID,
             multiplicator: 5,
-            direction: 1, // Undefined (0), Buy (1), Sell (2)
+            direction: CONSTANTS.DIRECTION.BUY,
             takeProfitType: 1,
             takeProfitValue: takeProfitBuy,
             stopLossType: 1,
@@ -38,7 +39,7 @@ describe('Checking rollover', () => {
 
         const response = await api.openMarketPosition(positionData);
         expect(response.status).toBe(200);
-        await api.setupInstrumentPrice("TEST2USDT.FTS", 1)
+        await api.setupInstrumentPrice(CONSTANTS.SYMBOL, 1)
 
         positionId = response.data?.data?.position?.id;
         logger.info(`Position ID: ${positionId}`);
@@ -77,17 +78,17 @@ describe('Checking rollover', () => {
         logger.info(`Updated rollover: ${updatedRollover}`);
         expect(updatedRollover).toBe(initialRollover + rolloverIncrement);
 
-        }, 15000);
+        }, CONSTANTS.TIMEOUTS.TEST);
 
     it("should open market sell position and calculate rollover", async () => {
-        await api.setupInstrumentPrice("TEST2USDT.FTS", 1)
+        await api.setupInstrumentPrice(CONSTANTS.SYMBOL, 1)
     
         const positionData = {
-            symbol: "TEST2USDT.FTS",
+            symbol: CONSTANTS.SYMBOL,
             amount: 100,
-            amountAssetId: "SMPL",
+            amountAssetId: CONSTANTS.ASSET_ID,
             multiplicator: 5,
-            direction: 1, // Undefined (0), Buy (1), Sell (2)
+            direction: CONSTANTS.DIRECTION.SELL,
             takeProfitType: 1,
             takeProfitValue: takeProfitSell,
             stopLossType: 1,
@@ -96,7 +97,7 @@ describe('Checking rollover', () => {
     
         const response = await api.openMarketPosition(positionData);
         expect(response.status).toBe(200);
-        await api.setupInstrumentPrice("TEST2USDT.FTS", 1)
+        await api.setupInstrumentPrice(CONSTANTS.SYMBOL, 1)
     
         positionId = response.data?.data?.position?.id;
         logger.info(`Position ID: ${positionId}`);
@@ -135,6 +136,6 @@ describe('Checking rollover', () => {
         logger.info(`Updated rollover: ${updatedRollover}`);
         expect(updatedRollover).toBe(initialRollover + rolloverIncrement);
     
-        }, 15000);
+        }, CONSTANTS.TIMEOUTS.TEST);
     
     });

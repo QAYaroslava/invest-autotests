@@ -1,3 +1,4 @@
+//TODO: add takeprofit and stoploss types
 const CONSTANTS = {
     SYMBOL: "TEST2USDT.FTS",
     ASSET_ID: "SMPL",

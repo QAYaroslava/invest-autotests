@@ -1,6 +1,7 @@
 const InvestmentAPI = require('./investment-api');
 const logger = require('../helpers/logger');
 const { generateAuthToken } = require("../helpers/authTgToken");
+const CONSTANTS = require('../../config/constants');
 
 describe('Closing market positions', () => {
     let api;
@@ -27,11 +28,11 @@ it("should open pending limit position", async () => {
     const pendingLimitPrice = 0.95;
 
     const positionData = {
-        symbol: "TEST2USDT.FTS",
+        symbol: CONSTANTS.SYMBOL,
         amount: 100,
-        amountAssetId: "SMPL",
+        amountAssetId: CONSTANTS.ASSET_ID,
         multiplicator: 5,
-        direction: 2, // Undefined (0), Buy (1), Sell (2)
+        direction: CONSTANTS.DIRECTION.SELL,
         targetPrice: pendingLimitPrice
         // takeProfitType: 1,
         // takeProfitValue: takeProfitBuy,
@@ -49,7 +50,7 @@ it("should open pending limit position", async () => {
     logger.info(`Position status: ${status}`);
     expect(positionId).toBeDefined();
     expect(status).toBeDefined();
-    expect(status).toBe(2);
+    expect(status).toBe(CONSTANTS.POSITION_STATUS.PENDING);
 
     await new Promise(resolve => setTimeout(resolve, 3000));
 
@@ -69,23 +70,23 @@ it("should open pending limit position", async () => {
     logger.info(`Position open price: ${openPrice}`);
 
     // Проверяем, что позиция действительно открылась
-    expect(status).toBe(4);
+    expect(status).toBe(CONSTANTS.POSITION_STATUS.OPENED);
     expect(openPrice).toBe(pendingLimitPrice);
 
     logger.info(`Pending Limit Position ${positionId} activated at the open price.`);
 
-}, 15000);
+}, CONSTANTS.TIMEOUTS.TEST);
 
 it("should open pending stop position", async () => {
     await api.setupInstrumentPrice("TEST2USDT.FTS", 1);
     const pendingLimitPrice = 0.95;
 
     const positionData = {
-        symbol: "TEST2USDT.FTS",
+        symbol: CONSTANTS.SYMBOL,
         amount: 100,
-        amountAssetId: "SMPL",
+        amountAssetId: CONSTANTS.ASSET_ID,
         multiplicator: 5,
-        direction: 1, // Undefined (0), Buy (1), Sell (2)
+        direction: CONSTANTS.DIRECTION.BUY,
         targetPrice: pendingLimitPrice
         // takeProfitType: 1,
         // takeProfitValue: takeProfitBuy,
@@ -102,7 +103,7 @@ it("should open pending stop position", async () => {
     logger.info(`Position status: ${status}`);
     expect(positionId).toBeDefined();
     expect(status).toBeDefined();
-    expect(status).toBe(2);
+    expect(status).toBe(CONSTANTS.POSITION_STATUS.PENDING);
 
     await new Promise(resolve => setTimeout(resolve, 3000));
 
@@ -120,23 +121,23 @@ it("should open pending stop position", async () => {
     logger.info(`Position status: ${status}`);
     logger.info(`Position open price: ${openPrice}`);
 
-    expect(status).toBe(4);
+    expect(status).toBe(CONSTANTS.POSITION_STATUS.OPENED);
     expect(openPrice).toBe(pendingLimitPrice);
 
     logger.info(`Pending Stop Position ${positionId} activated at the open price: ${openPrice}.`);
 
-}, 15000);
+}, CONSTANTS.TIMEOUTS.TEST);
 
 it("should close pending limit position by take profit", async () => {
     await api.setupInstrumentPrice("TEST2USDT.FTS", 1);
     const pendingLimitPrice = 0.95;
 
     const positionData = {
-        symbol: "TEST2USDT.FTS",
+        symbol: CONSTANTS.SYMBOL,
         amount: 100,
-        amountAssetId: "SMPL",
+        amountAssetId: CONSTANTS.ASSET_ID,
         multiplicator: 5,
-        direction: 2, // Undefined (0), Buy (1), Sell (2)
+        direction: CONSTANTS.DIRECTION.SELL,
         targetPrice: pendingLimitPrice,
         takeProfitType: 1,
         takeProfitValue: takeProfitSell,
@@ -153,7 +154,7 @@ it("should close pending limit position by take profit", async () => {
     logger.info(`Position status: ${status}`);
     expect(positionId).toBeDefined();
     expect(status).toBeDefined();
-    expect(status).toBe(2);
+    expect(status).toBe(CONSTANTS.POSITION_STATUS.PENDING);
 
     await new Promise(resolve => setTimeout(resolve, 3000));
 
@@ -171,7 +172,7 @@ it("should close pending limit position by take profit", async () => {
     logger.info(`Position status: ${status}`);
     logger.info(`Position open price: ${openPrice}`);
 
-    expect(status).toBe(4);
+    expect(status).toBe(CONSTANTS.POSITION_STATUS.OPENED);
     expect(openPrice).toBe(pendingLimitPrice);
 
     logger.info(`Pending Limit Position ${positionId} activated at the open price.`);
@@ -191,22 +192,22 @@ it("should close pending limit position by take profit", async () => {
     // Проверяем причину закрытия позиции
     const closeReason = closedPositionResponse.data?.data?.position?.closeReason;
     logger.info(`Position close reason: ${closeReason}`);
-    expect(closeReason).toBe(2); // Undefined (0), StopLoss (1), TakeProfit (2), MarketClose (3), Liquidation (4)
+    expect(closeReason).toBe(CONSTANTS.CLOSE_REASON.TAKE_PROFIT);
     
     logger.info(`Position ${positionId} closed by Take Profit.`);
 
-}, 15000);
+}, CONSTANTS.TIMEOUTS.TEST);
 
 it("should close pending stop position by take profit", async () => {
     await api.setupInstrumentPrice("TEST2USDT.FTS", 1);
     const pendingLimitPrice = 0.95;
 
     const positionData = {
-        symbol: "TEST2USDT.FTS",
+        symbol: CONSTANTS.SYMBOL,
         amount: 100,
-        amountAssetId: "SMPL",
+        amountAssetId: CONSTANTS.ASSET_ID,
         multiplicator: 5,
-        direction: 1, // Undefined (0), Buy (1), Sell (2)
+        direction: CONSTANTS.DIRECTION.BUY,
         targetPrice: pendingLimitPrice,
         takeProfitType: 1,
         takeProfitValue: takeProfitBuy,
@@ -223,7 +224,7 @@ it("should close pending stop position by take profit", async () => {
     logger.info(`Position status: ${status}`);
     expect(positionId).toBeDefined();
     expect(status).toBeDefined();
-    expect(status).toBe(2);
+    expect(status).toBe(CONSTANTS.POSITION_STATUS.PENDING);
 
     await new Promise(resolve => setTimeout(resolve, 3000));
 
@@ -241,7 +242,7 @@ it("should close pending stop position by take profit", async () => {
     logger.info(`Position status: ${status}`);
     logger.info(`Position open price: ${openPrice}`);
 
-    expect(status).toBe(4);
+    expect(status).toBe(CONSTANTS.POSITION_STATUS.OPENED);
     expect(openPrice).toBe(pendingLimitPrice);
 
     logger.info(`Pending Stop Position ${positionId} activated at the open price: ${openPrice}.`);
@@ -261,22 +262,22 @@ it("should close pending stop position by take profit", async () => {
     // Проверяем причину закрытия позиции
     const closeReason = closedPositionResponse.data?.data?.position?.closeReason;
     logger.info(`Position close reason: ${closeReason}`);
-    expect(closeReason).toBe(2); // Undefined (0), StopLoss (1), TakeProfit (2), MarketClose (3), Liquidation (4)
+    expect(closeReason).toBe(CONSTANTS.CLOSE_REASON.TAKE_PROFIT);
     
     logger.info(`Position ${positionId} closed by Take Profit.`);
 
-}, 15000);
+}, CONSTANTS.TIMEOUTS.TEST);
 
 it("should close pending limit position by stop loss", async () => {
     await api.setupInstrumentPrice("TEST2USDT.FTS", 1);
     const pendingLimitPrice = 0.95;
 
     const positionData = {
-        symbol: "TEST2USDT.FTS",
+        symbol: CONSTANTS.SYMBOL,
         amount: 100,
-        amountAssetId: "SMPL",
+        amountAssetId: CONSTANTS.ASSET_ID,
         multiplicator: 5,
-        direction: 2, // Undefined (0), Buy (1), Sell (2)
+        direction: CONSTANTS.DIRECTION.SELL,
         targetPrice: pendingLimitPrice,
         takeProfitType: 1,
         takeProfitValue: takeProfitSell,
@@ -293,7 +294,7 @@ it("should close pending limit position by stop loss", async () => {
     logger.info(`Position status: ${status}`);
     expect(positionId).toBeDefined();
     expect(status).toBeDefined();
-    expect(status).toBe(2);
+    expect(status).toBe(CONSTANTS.POSITION_STATUS.PENDING);
 
     await new Promise(resolve => setTimeout(resolve, 3000));
 
@@ -311,7 +312,7 @@ it("should close pending limit position by stop loss", async () => {
     logger.info(`Position status: ${status}`);
     logger.info(`Position open price: ${openPrice}`);
 
-    expect(status).toBe(4);
+    expect(status).toBe(CONSTANTS.POSITION_STATUS.OPENED);
     expect(openPrice).toBe(pendingLimitPrice);
 
     logger.info(`Pending Limit Position ${positionId} activated at the open price: ${openPrice}.`);
@@ -331,22 +332,22 @@ it("should close pending limit position by stop loss", async () => {
     // Проверяем причину закрытия позиции
     const closeReason = closedPositionResponse.data?.data?.position?.closeReason;
     logger.info(`Position close reason: ${closeReason}`);
-    expect(closeReason).toBe(1); // Undefined (0), StopLoss (1), TakeProfit (2), MarketClose (3), Liquidation (4)
+    expect(closeReason).toBe(CONSTANTS.CLOSE_REASON.STOP_LOSS);
     
     logger.info(`Position ${positionId} closed by Stop Loss.`);
 
-}, 15000);
+}, CONSTANTS.TIMEOUTS.TEST);
 
 it("should close pending stop position by stop loss", async () => {
     await api.setupInstrumentPrice("TEST2USDT.FTS", 1);
     const pendingLimitPrice = 0.95;
 
     const positionData = {
-        symbol: "TEST2USDT.FTS",
+        symbol: CONSTANTS.SYMBOL,
         amount: 100,
-        amountAssetId: "SMPL",
+        amountAssetId: CONSTANTS.ASSET_ID,
         multiplicator: 5,
-        direction: 1, // Undefined (0), Buy (1), Sell (2)
+        direction: CONSTANTS.DIRECTION.BUY,
         targetPrice: pendingLimitPrice,
         takeProfitType: 1,
         takeProfitValue: takeProfitBuy,
@@ -363,7 +364,7 @@ it("should close pending stop position by stop loss", async () => {
     logger.info(`Position status: ${status}`);
     expect(positionId).toBeDefined();
     expect(status).toBeDefined();
-    expect(status).toBe(2);
+    expect(status).toBe(CONSTANTS.POSITION_STATUS.PENDING);
 
     await new Promise(resolve => setTimeout(resolve, 3000));
 
@@ -381,7 +382,7 @@ it("should close pending stop position by stop loss", async () => {
     logger.info(`Position status: ${status}`);
     logger.info(`Position open price: ${openPrice}`);
 
-    expect(status).toBe(4);
+    expect(status).toBe(CONSTANTS.POSITION_STATUS.OPENED);
     expect(openPrice).toBe(pendingLimitPrice);
 
     logger.info(`Pending Stop Position ${positionId} activated at the open price: ${openPrice}.`);
@@ -401,23 +402,23 @@ it("should close pending stop position by stop loss", async () => {
     // Проверяем причину закрытия позиции
     const closeReason = closedPositionResponse.data?.data?.position?.closeReason;
     logger.info(`Position close reason: ${closeReason}`);
-    expect(closeReason).toBe(1); // Undefined (0), StopLoss (1), TakeProfit (2), MarketClose (3), Liquidation (4)
+    expect(closeReason).toBe(CONSTANTS.CLOSE_REASON.STOP_LOSS);
     
     logger.info(`Position ${positionId} closed by Stop Loss: ${stopLossBuy}.`);
 
-}, 15000);
+}, CONSTANTS.TIMEOUTS.TEST);
 
-it.only("should close pending limit position by stop out", async () => {
+it("should close pending limit position by stop out", async () => {
     await api.setupInstrumentPrice("TEST2USDT.FTS", 1);
     const pendingPrice = 0.95;
     const instrumentStopOut = 0.1 // Stop Out
 
     const positionData = {
-        symbol: "TEST2USDT.FTS",
+        symbol: CONSTANTS.SYMBOL,
         amount: 100,
-        amountAssetId: "SMPL",
+        amountAssetId: CONSTANTS.ASSET_ID,
         multiplicator: 5,
-        direction: 2, // Undefined (0), Buy (1), Sell (2)
+        direction: CONSTANTS.DIRECTION.SELL,
         targetPrice: pendingPrice
         // takeProfitType: 1,
         // takeProfitValue: takeProfitBuy,
@@ -434,7 +435,7 @@ it.only("should close pending limit position by stop out", async () => {
     logger.info(`Position status: ${status}`);
     expect(positionId).toBeDefined();
     expect(status).toBeDefined();
-    expect(status).toBe(2);
+    expect(status).toBe(CONSTANTS.POSITION_STATUS.PENDING);
 
     await new Promise(resolve => setTimeout(resolve, 3000));
 
@@ -452,7 +453,7 @@ it.only("should close pending limit position by stop out", async () => {
     logger.info(`Position status: ${status}`);
     logger.info(`Position open price: ${openPrice}`);
 
-    expect(status).toBe(4);
+    expect(status).toBe(CONSTANTS.POSITION_STATUS.OPENED);
     expect(openPrice).toBe(pendingPrice);
 
     logger.info(`Pending Limit Position ${positionId} activated at the open price: ${openPrice}.`);
@@ -484,11 +485,11 @@ it.only("should close pending limit position by stop out", async () => {
     // Проверяем причину закрытия позиции
     const closeReason = closedPositionResponse.data?.data?.position?.closeReason;
     logger.info(`Position close reason: ${closeReason}`);
-    expect(closeReason).toBe(4); // Undefined (0), StopLoss (1), TakeProfit (2), MarketClose (3), Liquidation (4)
+    expect(closeReason).toBe(CONSTANTS.CLOSE_REASON.LIQUIDATION);
 
     logger.info(`Position ${positionId} closed due to price deviation: ${StopOutPrice}.`);
 
-}, 15000);
+}, CONSTANTS.TIMEOUTS.TEST);
 
 it("should close pending stop position by stop out", async () => {
     await api.setupInstrumentPrice("TEST2USDT.FTS", 1);
@@ -496,11 +497,11 @@ it("should close pending stop position by stop out", async () => {
     const instrumentStopOut = 0.1 // Stop Out
 
     const positionData = {
-        symbol: "TEST2USDT.FTS",
+        symbol: CONSTANTS.SYMBOL,
         amount: 100,
-        amountAssetId: "SMPL",
+        amountAssetId: CONSTANTS.ASSET_ID,
         multiplicator: 5,
-        direction: 1, // Undefined (0), Buy (1), Sell (2)
+        direction: CONSTANTS.DIRECTION.BUY,
         targetPrice: pendingPrice
         // takeProfitType: 1,
         // takeProfitValue: takeProfitBuy,
@@ -517,7 +518,7 @@ it("should close pending stop position by stop out", async () => {
     logger.info(`Position status: ${status}`);
     expect(positionId).toBeDefined();
     expect(status).toBeDefined();
-    expect(status).toBe(2);
+    expect(status).toBe(CONSTANTS.POSITION_STATUS.PENDING);
 
     await new Promise(resolve => setTimeout(resolve, 3000));
 
@@ -535,7 +536,7 @@ it("should close pending stop position by stop out", async () => {
     logger.info(`Position status: ${status}`);
     logger.info(`Position open price: ${openPrice}`);
 
-    expect(status).toBe(4);
+    expect(status).toBe(CONSTANTS.POSITION_STATUS.OPENED);
     expect(openPrice).toBe(pendingPrice);
 
     logger.info(`Pending Limit Position ${positionId} activated at the open price: ${openPrice}.`);
@@ -567,10 +568,10 @@ it("should close pending stop position by stop out", async () => {
     // Проверяем причину закрытия позиции
     const closeReason = closedPositionResponse.data?.data?.position?.closeReason;
     logger.info(`Position close reason: ${closeReason}`);
-    expect(closeReason).toBe(4); // Undefined (0), StopLoss (1), TakeProfit (2), MarketClose (3), Liquidation (4)
+    expect(closeReason).toBe(CONSTANTS.CLOSE_REASON.LIQUIDATION);
 
     logger.info(`Position ${positionId} closed due to price deviation: ${StopOutPrice}.`);
 
-}, 15000);
+}, CONSTANTS.TIMEOUTS.TEST);
 
 })

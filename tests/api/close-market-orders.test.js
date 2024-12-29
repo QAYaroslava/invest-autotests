@@ -1,6 +1,7 @@
 const InvestmentAPI = require('./investment-api');
 const logger = require('../helpers/logger');
 const { generateAuthToken } = require("../helpers/authTgToken");
+const CONSTANTS = require('../../config/constants');
 
 describe('Closing market positions', () => {
     let api;
@@ -25,11 +26,11 @@ describe('Closing market positions', () => {
         await api.setupInstrumentPrice("TEST2USDT.FTS", 1)
 
         const positionData = {
-            symbol: "TEST2USDT.FTS",
+            symbol: CONSTANTS.SYMBOL,
             amount: 100,
-            amountAssetId: "SMPL",
+            amountAssetId: CONSTANTS.ASSET_ID,
             multiplicator: 5,
-            direction: 1, // Undefined (0), Buy (1), Sell (2)
+            direction: CONSTANTS.DIRECTION.BUY,
             // takeProfitType: 1,
             // takeProfitValue: takeProfitBuy,
             // stopLossType: 1,
@@ -54,18 +55,18 @@ describe('Closing market positions', () => {
         expect(response.status).toBe(200);
         const closeReason = response.data?.data?.position?.closeReason;
         logger.info(`Position close reason: ${closeReason}`);
-        expect(closeReason).toBe(3); // Undefined (0), StopLoss (1), TakeProfit (2), MarketClose (3), Liquidation (4)
-    }, 15000);
+        expect(closeReason).toBe(CONSTANTS.CLOSE_REASON.MARKET_CLOSE);
+    }, CONSTANTS.TIMEOUTS.TEST);
 
     it("should open market sell position", async () => {
         await api.setupInstrumentPrice("TEST2USDT.FTS", 1)
 
         const positionData = {
-            symbol: "TEST2USDT.FTS",
+            symbol: CONSTANTS.SYMBOL,
             amount: 100,
-            amountAssetId: "SMPL",
+            amountAssetId: CONSTANTS.ASSET_ID,
             multiplicator: 5,
-            direction: 2, // Undefined (0), Buy (1), Sell (2)
+            direction: CONSTANTS.DIRECTION.SELL,
             // takeProfitType: 1,
             // takeProfitValue: takeProfitBuy,
             // stopLossType: 1,
@@ -90,8 +91,8 @@ describe('Closing market positions', () => {
         expect(response.status).toBe(200);
         const closeReason = response.data?.data?.position?.closeReason;
         logger.info(`Position close reason: ${closeReason}`);
-        expect(closeReason).toBe(3); // Undefined (0), StopLoss (1), TakeProfit (2), MarketClose (3), Liquidation (4)
-    }, 15000);
+        expect(closeReason).toBe(CONSTANTS.CLOSE_REASON.MARKET_CLOSE);
+    }, CONSTANTS.TIMEOUTS.TEST);
 
     it("should close market buy position by take profit", async () => {
         // Прокидываем начальную цену инструмента
@@ -99,11 +100,11 @@ describe('Closing market positions', () => {
     
         // Открываем позицию
         const positionData = {
-            symbol: "TEST2USDT.FTS",
+            symbol: CONSTANTS.SYMBOL,
             amount: 100,
-            amountAssetId: "SMPL",
+            amountAssetId: CONSTANTS.ASSET_ID,
             multiplicator: 10,
-            direction: 1, // Undefined (0), Buy (1), Sell (2)
+            direction: CONSTANTS.DIRECTION.BUY,
             takeProfitType: 1,
             takeProfitValue: takeProfitBuy,
             stopLossType: 1,
@@ -137,10 +138,10 @@ describe('Closing market positions', () => {
         // Проверяем причину закрытия позиции
         const closeReason = getPositionResponse.data?.data?.position?.closeReason;
         logger.info(`Position close reason: ${closeReason}`);
-        expect(closeReason).toBe(2); // Undefined (0), StopLoss (1), TakeProfit (2), MarketClose (3), Liquidation (4)
+        expect(closeReason).toBe(CONSTANTS.CLOSE_REASON.TAKE_PROFIT);
     
         logger.info(`Position ${positionId} closed by Take Profit.`);
-    }, 15000);
+    }, CONSTANTS.TIMEOUTS.TEST);
 
     it("should close market sell position by take profit", async () => {
         // Прокидываем начальную цену инструмента
@@ -148,11 +149,11 @@ describe('Closing market positions', () => {
     
         // Открываем позицию
         const positionData = {
-            symbol: "TEST2USDT.FTS",
+            symbol: CONSTANTS.SYMBOL,
             amount: 100,
-            amountAssetId: "SMPL",
+            amountAssetId: CONSTANTS.ASSET_ID,
             multiplicator: 10,
-            direction: 2, // Undefined (0), Buy (1), Sell (2)
+            direction: CONSTANTS.DIRECTION.SELL,
             takeProfitType: 1,
             takeProfitValue: takeProfitSell,
             stopLossType: 1,
@@ -186,10 +187,10 @@ describe('Closing market positions', () => {
         // Проверяем причину закрытия позиции
         const closeReason = getPositionResponse.data?.data?.position?.closeReason;
         logger.info(`Position close reason: ${closeReason}`);
-        expect(closeReason).toBe(2); // Undefined (0), StopLoss (1), TakeProfit (2), MarketClose (3), Liquidation (4)
+        expect(closeReason).toBe(CONSTANTS.CLOSE_REASON.TAKE_PROFIT);
     
         logger.info(`Position ${positionId} closed by Take Profit.`);
-    }, 15000);
+    }, CONSTANTS.TIMEOUTS.TEST);
 
     it("should close market buy position by stop loss", async () => {
         // Прокидываем начальную цену инструмента
@@ -197,11 +198,11 @@ describe('Closing market positions', () => {
 
         // Открываем позицию
         const positionData = {
-            symbol: "TEST2USDT.FTS",
+            symbol: CONSTANTS.SYMBOL,
             amount: 10,
-            amountAssetId: "SMPL",
+            amountAssetId: CONSTANTS.ASSET_ID,
             multiplicator: 10,
-            direction: 1, // Undefined (0), Buy (1), Sell (2)
+            direction: CONSTANTS.DIRECTION.BUY,
             takeProfitType: 1,
             takeProfitValue: takeProfitBuy,
             stopLossType: 1,
@@ -236,10 +237,10 @@ describe('Closing market positions', () => {
         // Проверяем причину закрытия позиции
         const closeReason = getPositionResponse.data?.data?.position?.closeReason;
         logger.info(`Position close reason: ${closeReason}`);
-        expect(closeReason).toBe(1); // Undefined (0), StopLoss (1), TakeProfit (2), MarketClose (3), Liquidation (4)
+        expect(closeReason).toBe(CONSTANTS.CLOSE_REASON.STOP_LOSS);
 
         logger.info(`Position ${positionId} closed by Stop Loss.`);
-    }, 15000);
+    }, CONSTANTS.TIMEOUTS.TEST);
 
     it("should close market sell position by stop loss", async () => {
         // Прокидываем начальную цену инструмента
@@ -247,11 +248,11 @@ describe('Closing market positions', () => {
 
         // Открываем позицию
         const positionData = {
-            symbol: "TEST2USDT.FTS",
+            symbol: CONSTANTS.SYMBOL,
             amount: 10,
-            amountAssetId: "SMPL",
+            amountAssetId: CONSTANTS.ASSET_ID,
             multiplicator: 10,
-            direction: 1, // Undefined (0), Buy (1), Sell (2)
+            direction: CONSTANTS.DIRECTION.BUY,
             takeProfitType: 1,
             takeProfitValue: takeProfitSell,
             stopLossType: 1,
@@ -286,10 +287,10 @@ describe('Closing market positions', () => {
         // Проверяем причину закрытия позиции
         const closeReason = getPositionResponse.data?.data?.position?.closeReason;
         logger.info(`Position close reason: ${closeReason}`);
-        expect(closeReason).toBe(1); // Undefined (0), StopLoss (1), TakeProfit (2), MarketClose (3), Liquidation (4)
+        expect(closeReason).toBe(CONSTANTS.CLOSE_REASON.STOP_LOSS);
 
         logger.info(`Position ${positionId} closed by Stop Loss.`);
-    }, 15000);
+    }, CONSTANTS.TIMEOUTS.TEST);
 
     it("should close market sell position automatically if price deviates by Stop Out", async () => {
         const initialPrice = 1; // Начальная цена инструмента
@@ -300,11 +301,11 @@ describe('Closing market positions', () => {
 
         // Открываем buy позицию
         const positionData = {
-            symbol: "TEST2USDT.FTS",
+            symbol: CONSTANTS.SYMBOL,
             amount: 10,
-            amountAssetId: "SMPL",
+            amountAssetId: CONSTANTS.ASSET_ID,
             multiplicator: 10,
-            direction: 2, // Undefined (0), Buy (1), Sell (2)
+            direction: CONSTANTS.DIRECTION.SELL,
         };
 
         const openResponse = await api.openMarketPosition(positionData);
@@ -326,7 +327,7 @@ describe('Closing market positions', () => {
 
         // Рассчитываем stopOutPl и StopOutPrice
         const stopOutPl = -volume / multiplicator * (1 - instrumentStopOut);
-        const buySell = position.direction === 1 ? 1 : -1; // 1 for buy, -1 for sell
+        const buySell = position.direction === CONSTANTS.DIRECTION.BUY ? 1 : -1; // 1 for buy, -1 for sell
         const StopOutPrice = parseFloat(
             (openPrice * (1 + buySell * (stopOutPl + openFee - rollOver + closeFee) / volume)).toFixed(4)
         );
@@ -346,10 +347,10 @@ describe('Closing market positions', () => {
         // Проверяем причину закрытия позиции
         const closeReason = getClosedPositionResponse.data?.data?.position?.closeReason;
         logger.info(`Position close reason: ${closeReason}`);
-        expect(closeReason).toBe(4); // Undefined (0), StopLoss (1), TakeProfit (2), MarketClose (3), Liquidation (4)
+        expect(closeReason).toBe(CONSTANTS.CLOSE_REASON.LIQUIDATION);
 
         logger.info(`Position ${positionId} closed due to price deviation.`);
-    }, 15000);
+    }, CONSTANTS.TIMEOUTS.TEST);
 
     it("should close market buy position automatically if price deviates by Stop Out", async () => {
         const initialPrice = 1; // Начальная цена инструмента
@@ -360,11 +361,11 @@ describe('Closing market positions', () => {
 
         // Открываем buy позицию
         const positionData = {
-            symbol: "TEST2USDT.FTS",
+            symbol: CONSTANTS.SYMBOL,
             amount: 10,
-            amountAssetId: "SMPL",
+            amountAssetId: CONSTANTS.ASSET_ID,
             multiplicator: 10,
-            direction: 1, // Undefined (0), Buy (1), Sell (2)
+            direction: CONSTANTS.DIRECTION.BUY,
         };
 
         const openResponse = await api.openMarketPosition(positionData);
@@ -386,7 +387,7 @@ describe('Closing market positions', () => {
 
         // Рассчитываем stopOutPl и StopOutPrice
         const stopOutPl = -volume / multiplicator * (1 - instrumentStopOut);
-        const buySell = position.direction === 1 ? 1 : -1; // 1 for buy, -1 for sell
+        const buySell = position.direction === CONSTANTS.DIRECTION.BUY ? 1 : -1; // 1 for buy, -1 for sell
         const StopOutPrice = parseFloat(
             (openPrice * (1 + buySell * (stopOutPl + openFee - rollOver + closeFee) / volume)).toFixed(4)
         );
@@ -405,8 +406,8 @@ describe('Closing market positions', () => {
         // Проверяем причину закрытия позиции
         const closeReason = getClosedPositionResponse.data?.data?.position?.closeReason;
         logger.info(`Position close reason: ${closeReason}`);
-        expect(closeReason).toBe(4); // Undefined (0), StopLoss (1), TakeProfit (2), MarketClose (3), Liquidation (4)
+        expect(closeReason).toBe(CONSTANTS.CLOSE_REASON.LIQUIDATION);
 
         logger.info(`Position ${positionId} closed due to price deviation.`);
-    }, 15000);
+    }, CONSTANTS.TIMEOUTS.TEST);
 })
