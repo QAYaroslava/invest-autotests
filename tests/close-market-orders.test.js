@@ -22,8 +22,6 @@ describe('Closing market positions', () => {
     });
 
     it("should open market buy position", async () => {
-        await api.setupInstrumentPrice("TEST2USDT.FTS", 1)
-
         const positionData = {
             symbol: CONSTANTS.SYMBOL,
             amount: 100,
@@ -36,13 +34,7 @@ describe('Closing market positions', () => {
             // stopLossValue: stopLossBuy
         };
 
-        const response = await api.openMarketPosition(positionData);
-        expect(response.status).toBe(200);
-        await api.setupInstrumentPrice("TEST2USDT.FTS", 1)
-
-        positionId = response.data?.data?.position?.id;
-        logger.info(`Position ID: ${positionId}`);
-        expect(positionId).toBeDefined();
+        positionId = await api.openAndVerifyMarketPosition(positionData, 1, CONSTANTS.POSITION_STATUS.OPENED);
     });
 
     it("should manually close market buy position", async () => {
@@ -72,13 +64,7 @@ describe('Closing market positions', () => {
             // stopLossValue: stopLossBuy
         };
 
-        const response = await api.openMarketPosition(positionData);
-        expect(response.status).toBe(200);
-        await api.setupInstrumentPrice("TEST2USDT.FTS", 1)
-
-        positionId = response.data?.data?.position?.id;
-        logger.info(`Position ID: ${positionId}`);
-        expect(positionId).toBeDefined();
+        positionId = await api.openAndVerifyMarketPosition(positionData, 1, CONSTANTS.POSITION_STATUS.OPENED);
     });
 
     it("should manually close market sell position", async () => {
@@ -110,16 +96,7 @@ describe('Closing market positions', () => {
             stopLossValue: stopLossBuy
         };
     
-        const openResponse = await api.openMarketPosition(positionData);
-        expect(openResponse.status).toBe(200);
-        await api.setupInstrumentPrice("TEST2USDT.FTS", 1);
-    
-        positionId = openResponse.data?.data?.position?.id;
-        logger.info(`Position ID: ${positionId}`);
-        expect(positionId).toBeDefined();
-    
-        // Таймаут для того, чтобы позиция успела перейти из статуса Opening в Opened
-        await new Promise(resolve => setTimeout(resolve, 3000));
+        positionId = await api.openAndVerifyMarketPosition(positionData, 1, CONSTANTS.POSITION_STATUS.OPENED);
     
         // Устанавливаем цену закрытия позиции по Take Profit
         await api.setupInstrumentPrice("TEST2USDT.FTS", takeProfitBuy);
@@ -159,16 +136,7 @@ describe('Closing market positions', () => {
             stopLossValue: stopLossSell
         };
     
-        const openResponse = await api.openMarketPosition(positionData);
-        expect(openResponse.status).toBe(200);
-        await api.setupInstrumentPrice("TEST2USDT.FTS", 1);
-    
-        positionId = openResponse.data?.data?.position?.id;
-        logger.info(`Position ID: ${positionId}`);
-        expect(positionId).toBeDefined();
-    
-        // Таймаут для того, чтобы позиция успела перейти из статуса Opening в Opened
-        await new Promise(resolve => setTimeout(resolve, 3000));
+        positionId = await api.openAndVerifyMarketPosition(positionData, 1, CONSTANTS.POSITION_STATUS.OPENED);
     
         // Устанавливаем цену закрытия позиции по Take Profit
         await api.setupInstrumentPrice("TEST2USDT.FTS", takeProfitSell);
@@ -208,17 +176,7 @@ describe('Closing market positions', () => {
             stopLossValue: stopLossBuy
         };
 
-        const openResponse = await api.openMarketPosition(positionData);
-        expect(openResponse.status).toBe(200);
-        await api.setupInstrumentPrice("TEST2USDT.FTS", 1);
-
-    
-        positionId = openResponse.data?.data?.position?.id;
-        logger.info(`Position ID: ${positionId}`);
-        expect(positionId).toBeDefined();
-
-        // Таймаут для того, чтобы позиция успела перейти из статуса Opening в Opened
-        await new Promise(resolve => setTimeout(resolve, 3000));
+        positionId = await api.openAndVerifyMarketPosition(positionData, 1, CONSTANTS.POSITION_STATUS.OPENED);
 
         // Устанавливаем цену закрытия позиции по Stop Loss
         await api.setupInstrumentPrice("TEST2USDT.FTS", stopLossBuy);
@@ -258,17 +216,7 @@ describe('Closing market positions', () => {
             stopLossValue: stopLossSell
         };
 
-        const openResponse = await api.openMarketPosition(positionData);
-        expect(openResponse.status).toBe(200);
-        await api.setupInstrumentPrice("TEST2USDT.FTS", 1);
-
-    
-        positionId = openResponse.data?.data?.position?.id;
-        logger.info(`Position ID: ${positionId}`);
-        expect(positionId).toBeDefined();
-
-        // Таймаут для того, чтобы позиция успела перейти из статуса Opening в Opened
-        await new Promise(resolve => setTimeout(resolve, 3000));
+        positionId = await api.openAndVerifyMarketPosition(positionData, 1, CONSTANTS.POSITION_STATUS.OPENED);
 
         // Устанавливаем цену закрытия позиции по Stop Loss
         await api.setupInstrumentPrice("TEST2USDT.FTS", stopLossSell);
@@ -295,10 +243,6 @@ describe('Closing market positions', () => {
         const initialPrice = 1; // Начальная цена инструмента
         const instrumentStopOut = 0.1 // Stop Out
 
-        // Устанавливаем начальную цену
-        await api.setupInstrumentPrice("TEST2USDT.FTS", initialPrice);
-
-        // Открываем buy позицию
         const positionData = {
             symbol: CONSTANTS.SYMBOL,
             amount: 10,
@@ -307,36 +251,10 @@ describe('Closing market positions', () => {
             direction: CONSTANTS.DIRECTION.SELL,
         };
 
-        const openResponse = await api.openMarketPosition(positionData);
-        expect(openResponse.status).toBe(200);
-        await api.setupInstrumentPrice("TEST2USDT.FTS", initialPrice);
+        positionId = await api.openAndVerifyMarketPosition(positionData, initialPrice, CONSTANTS.POSITION_STATUS.OPENED);
 
-        positionId = openResponse.data?.data?.position?.id;
-        logger.info(`Position ID: ${positionId}`);
-        expect(positionId).toBeDefined();
-
-        await new Promise(resolve => setTimeout(resolve, 3000));
-
-        // Вызываем запрос на получение информации о позиции
-        const getPositionResponse = await api.getPositionById(positionId);
-        expect(getPositionResponse.status).toBe(200);
-
-        const position = getPositionResponse.data?.data?.position;
-        const { openPrice, volume, multiplicator, openFee, rollOver, closeFee } = position;
-
-        // Рассчитываем stopOutPl и StopOutPrice
-        const stopOutPl = -volume / multiplicator * (1 - instrumentStopOut);
-        const buySell = position.direction === CONSTANTS.DIRECTION.BUY ? 1 : -1; // 1 for buy, -1 for sell
-        const StopOutPrice = parseFloat(
-            (openPrice * (1 + buySell * (stopOutPl + openFee - rollOver + closeFee) / volume)).toFixed(4)
-        );
-
-        logger.info(`Calculated StopOutPrice: ${StopOutPrice}`);
-        logger.info(`Calculated StopOutPrice (formatted): ${StopOutPrice.toFixed(4)}`);
-
-        // Прокидываем новую цену инструмента
-        await api.setupInstrumentPrice("TEST2USDT.FTS", StopOutPrice);
-        logger.info(`Instrument price set to StopOutPrice: ${StopOutPrice}`);
+        const stopOutPrice = await api.calculateAndSetStopOutPrice(positionId, instrumentStopOut);
+        logger.info(`Calculated and set StopOutPrice: ${stopOutPrice}`);
 
         await new Promise(resolve => setTimeout(resolve, 4000));
 
@@ -355,10 +273,6 @@ describe('Closing market positions', () => {
         const initialPrice = 1; // Начальная цена инструмента
         const instrumentStopOut = 0.1 // Stop Out
 
-        // Устанавливаем начальную цену
-        await api.setupInstrumentPrice("TEST2USDT.FTS", initialPrice);
-
-        // Открываем buy позицию
         const positionData = {
             symbol: CONSTANTS.SYMBOL,
             amount: 10,
@@ -367,46 +281,21 @@ describe('Closing market positions', () => {
             direction: CONSTANTS.DIRECTION.BUY,
         };
 
-        const openResponse = await api.openMarketPosition(positionData);
-        expect(openResponse.status).toBe(200);
-        await api.setupInstrumentPrice("TEST2USDT.FTS", initialPrice);
-
-        positionId = openResponse.data?.data?.position?.id;
-        logger.info(`Position ID: ${positionId}`);
-        expect(positionId).toBeDefined();
+        positionId = await api.openAndVerifyMarketPosition(positionData, initialPrice, CONSTANTS.POSITION_STATUS.OPENED);
 
         await new Promise(resolve => setTimeout(resolve, 3000));
 
-        // Вызываем запрос на получение информации о позиции
-        const getPositionResponse = await api.getPositionById(positionId);
-        expect(getPositionResponse.status).toBe(200);
-
-        const position = getPositionResponse.data?.data?.position;
-        const { openPrice, volume, multiplicator, openFee, rollOver, closeFee } = position;
-
-        // Рассчитываем stopOutPl и StopOutPrice
-        const stopOutPl = -volume / multiplicator * (1 - instrumentStopOut);
-        const buySell = position.direction === CONSTANTS.DIRECTION.BUY ? 1 : -1; // 1 for buy, -1 for sell
-        const StopOutPrice = parseFloat(
-            (openPrice * (1 + buySell * (stopOutPl + openFee - rollOver + closeFee) / volume)).toFixed(4)
-        );
-
-        logger.info(`Calculated StopOutPrice: ${StopOutPrice}`);
-        logger.info(`Calculated StopOutPrice (formatted): ${StopOutPrice.toFixed(4)}`);
-
-        await api.setupInstrumentPrice("TEST2USDT.FTS", StopOutPrice);
-        logger.info(`Instrument price set to StopOutPrice: ${StopOutPrice}`);
+        // Calculate and set StopOut price using the new method
+        const stopOutPrice = await api.calculateAndSetStopOutPrice(positionId, instrumentStopOut);
+        logger.info(`Calculated and set StopOutPrice: ${stopOutPrice}`);
 
         await new Promise(resolve => setTimeout(resolve, 4000));
 
         const getClosedPositionResponse = await api.getPositionById(positionId);
         expect(getClosedPositionResponse.status).toBe(200);
-
-        // Проверяем причину закрытия позиции
+        
         const closeReason = getClosedPositionResponse.data?.data?.position?.closeReason;
         logger.info(`Position close reason: ${closeReason}`);
         expect(closeReason).toBe(CONSTANTS.CLOSE_REASON.LIQUIDATION);
-
-        logger.info(`Position ${positionId} closed due to price deviation.`);
     }, CONSTANTS.TIMEOUTS.TEST);
 })

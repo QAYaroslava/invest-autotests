@@ -2,6 +2,7 @@ const axios = require("axios");
 const logger = require("../helpers/logger");
 const { getClient, closeAll } = require("../grpc/grpc-client-factory");
 const API_CONFIG = require("../config/environment");
+const CONSTANTS = require("../config/constants");
 
 class InvestmentAPI {
   constructor(authToken) {
@@ -158,31 +159,117 @@ class InvestmentAPI {
 
   async getPositionById(positionId) {
     try {
-      const url = `${API_CONFIG.baseURL}/${API_CONFIG.endpoints.getPosition}?positionId=${positionId}`;
+      const url = `${API_CONFIG.endpoints.getPosition}?positionId=${positionId}`;
       const requestBody = {
         positionId: positionId,
-    };
+      };
+      logger.info(`Getting position by id: ${positionId}`);
+      const response = await this.axiosInstance.post(
+        url,
+        requestBody
+      );
 
-    const response = await this.axiosInstance.post(
-      url,
-      requestBody
-    );
-
-      logger.info("Get position info:", {
-        data: {
-          url: url,
-          body: requestBody,
-          response: response.data,
-        },
-      });
+      logger.info(`Response: ${JSON.stringify(response.data, null, 4)}`);
+  
       return response;
+
     } catch (error) {
       logger.error(
-        `Failed to get position: ${error.response?.data || error.message}`
+        `Failed to get position: ${error.response?.data || error.message}`,
+        {
+          fullError: error,
+          status: error.response?.status,
+          headers: error.response?.headers
+        }
       );
       throw error;
     }
   }
+
+  async openAndVerifyMarketPosition(positionData, price = 1,
+      expectedStatus = CONSTANTS.POSITION_STATUS.OPENED) {
+      try {
+          await this.setupInstrumentPrice(positionData.symbol, price);
+          
+          const response = await this.openMarketPosition(positionData);
+          if (response.status !== 200) {
+              throw new Error(`Failed to open market position: ${response.data}`);
+          }
+
+          const positionId = response.data?.data?.position?.id;
+          
+          if (!positionId) {
+              throw new Error('Position ID not found in response');
+          }
+
+          await this.setupInstrumentPrice(positionData.symbol, price);
+
+          await this.waitForPositionStatus(positionId, expectedStatus);
+
+          return positionId;
+
+      } catch (error) {
+          logger.error('Failed in openAndVerifyMarketPosition:', error);
+          throw error;
+      }
+  }
+
+  /**
+   * Calculates and sets StopOut price for a position
+   * @param {string} positionId - Position ID
+   * @param {number} instrumentStopOut - Stop Out coefficient (default: 0.1)
+   * @returns {Promise<number>} Calculated StopOut price
+   */
+  async calculateAndSetStopOutPrice(positionId, instrumentStopOut = 0.1) {
+      const position = await this.getPositionById(positionId);
+      const { openPrice, volume, multiplicator, openFee, rollOver, closeFee, direction } = position.data?.data?.position;
+
+      const stopOutPl = -volume / multiplicator * (1 - instrumentStopOut);
+      const buySell = direction === CONSTANTS.DIRECTION.BUY ? 1 : -1;
+      
+      const stopOutPrice = parseFloat(
+          (openPrice * (1 + buySell * (stopOutPl + openFee - rollOver + closeFee) / volume)).toFixed(4)
+      );
+
+      await this.setupInstrumentPrice(position.data?.data?.position?.symbol, stopOutPrice);
+      return stopOutPrice;
+  }
+
+    /**
+     * Waits for a position to reach a specific status
+     * @param {string} positionId - Position ID to check
+     * @param {string} expectedStatus - Status to wait for
+     * @param {number} timeout - Time to wait between checks
+     * @param {number} maxAttempts - Maximum number of status check attempts
+     * @returns {Promise<Object>} Position data
+     */
+  async waitForPositionStatus(positionId, expectedStatus, timeout = 1000, maxAttempts = 5) {
+    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+        await new Promise(resolve => setTimeout(resolve, timeout));
+        
+        const response = await this.getPositionById(positionId);
+        const position = response.data?.data?.position;
+        
+        if (!position) {
+            throw new Error(`Position ${positionId} not found`);
+        }
+
+        if (position.status === expectedStatus) {
+            return position;
+        }
+
+        if (attempt === maxAttempts) {
+            throw new Error(
+                `Position ${positionId} did not reach ${expectedStatus} status after ${maxAttempts} attempts. ` +
+                `Current status: ${position.status}`
+            );
+        }
+
+        logger.info(`Waiting for position ${positionId} to reach status ${expectedStatus}. ` +
+                   `Current status: ${position.status}. Attempt ${attempt}/${maxAttempts}`);
+    }
+  }
 }
+
 
 module.exports = InvestmentAPI;
