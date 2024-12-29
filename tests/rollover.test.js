@@ -31,9 +31,9 @@ describe('Checking rollover', () => {
             amountAssetId: CONSTANTS.ASSET_ID,
             multiplicator: 5,
             direction: CONSTANTS.DIRECTION.BUY,
-            takeProfitType: 1,
+            takeProfitType: CONSTANTS.TAKE_PROFIT_TYPE.PRICE,
             takeProfitValue: takeProfitBuy,
-            stopLossType: 1,
+            stopLossType: CONSTANTS.STOP_LOSS_TYPE.PRICE,
             stopLossValue: stopLossBuy
         };
 

@@ -30,9 +30,9 @@ describe('Closing market positions', () => {
             amountAssetId: CONSTANTS.ASSET_ID,
             multiplicator: 5,
             direction: CONSTANTS.DIRECTION.BUY,
-            // takeProfitType: 1,
+            // takeProfitType: CONSTANTS.TAKE_PROFIT_TYPE.PRICE,
             // takeProfitValue: takeProfitBuy,
-            // stopLossType: 1,
+            // stopLossType: CONSTANTS.STOP_LOSS_TYPE.PRICE,
             // stopLossValue: stopLossBuy
         };
 
@@ -66,9 +66,9 @@ describe('Closing market positions', () => {
             amountAssetId: CONSTANTS.ASSET_ID,
             multiplicator: 5,
             direction: CONSTANTS.DIRECTION.SELL,
-            // takeProfitType: 1,
+            // takeProfitType: CONSTANTS.TAKE_PROFIT_TYPE.PRICE,
             // takeProfitValue: takeProfitBuy,
-            // stopLossType: 1,
+            // stopLossType: CONSTANTS.STOP_LOSS_TYPE.PRICE,
             // stopLossValue: stopLossBuy
         };
 
@@ -104,9 +104,9 @@ describe('Closing market positions', () => {
             amountAssetId: CONSTANTS.ASSET_ID,
             multiplicator: 10,
             direction: CONSTANTS.DIRECTION.BUY,
-            takeProfitType: 1,
+            takeProfitType: CONSTANTS.TAKE_PROFIT_TYPE.PRICE,
             takeProfitValue: takeProfitBuy,
-            stopLossType: 1,
+            stopLossType: CONSTANTS.STOP_LOSS_TYPE.PRICE,
             stopLossValue: stopLossBuy
         };
     
@@ -153,9 +153,9 @@ describe('Closing market positions', () => {
             amountAssetId: CONSTANTS.ASSET_ID,
             multiplicator: 10,
             direction: CONSTANTS.DIRECTION.SELL,
-            takeProfitType: 1,
+            takeProfitType: CONSTANTS.TAKE_PROFIT_TYPE.PRICE,
             takeProfitValue: takeProfitSell,
-            stopLossType: 1,
+            stopLossType: CONSTANTS.STOP_LOSS_TYPE.PRICE,
             stopLossValue: stopLossSell
         };
     
@@ -202,9 +202,9 @@ describe('Closing market positions', () => {
             amountAssetId: CONSTANTS.ASSET_ID,
             multiplicator: 10,
             direction: CONSTANTS.DIRECTION.BUY,
-            takeProfitType: 1,
+            takeProfitType: CONSTANTS.TAKE_PROFIT_TYPE.PRICE,
             takeProfitValue: takeProfitBuy,
-            stopLossType: 1,
+            stopLossType: CONSTANTS.STOP_LOSS_TYPE.PRICE,
             stopLossValue: stopLossBuy
         };
 
@@ -252,9 +252,9 @@ describe('Closing market positions', () => {
             amountAssetId: CONSTANTS.ASSET_ID,
             multiplicator: 10,
             direction: CONSTANTS.DIRECTION.BUY,
-            takeProfitType: 1,
+            takeProfitType: CONSTANTS.TAKE_PROFIT_TYPE.PRICE,
             takeProfitValue: takeProfitSell,
-            stopLossType: 1,
+            stopLossType: CONSTANTS.STOP_LOSS_TYPE.PRICE,
             stopLossValue: stopLossSell
         };
 

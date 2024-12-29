@@ -26,6 +26,14 @@ const CONSTANTS = {
         MARKET_CLOSE: 3,
         LIQUIDATION: 4
     },
+    TAKE_PROFIT_TYPE: {
+        PRICE: 1,
+        AMOUNT: 2
+    },
+    STOP_LOSS_TYPE: {
+        PRICE: 1,
+        AMOUNT: 2
+    },
     TIMEOUTS: {
         DEFAULT: 3000,
         TEST: 15000

@@ -139,9 +139,9 @@ it("should close pending limit position by take profit", async () => {
         multiplicator: 5,
         direction: CONSTANTS.DIRECTION.SELL,
         targetPrice: pendingLimitPrice,
-        takeProfitType: 1,
+        takeProfitType: CONSTANTS.TAKE_PROFIT_TYPE.PRICE,
         takeProfitValue: takeProfitSell,
-        stopLossType: 1,
+        stopLossType: CONSTANTS.STOP_LOSS_TYPE.PRICE,
         stopLossValue: stopLossSell
     };
 
@@ -209,9 +209,9 @@ it("should close pending stop position by take profit", async () => {
         multiplicator: 5,
         direction: CONSTANTS.DIRECTION.BUY,
         targetPrice: pendingLimitPrice,
-        takeProfitType: 1,
+        takeProfitType: CONSTANTS.TAKE_PROFIT_TYPE.PRICE,
         takeProfitValue: takeProfitBuy,
-        stopLossType: 1,
+        stopLossType: CONSTANTS.STOP_LOSS_TYPE.PRICE,
         stopLossValue: stopLossBuy
     };
 
@@ -279,9 +279,9 @@ it("should close pending limit position by stop loss", async () => {
         multiplicator: 5,
         direction: CONSTANTS.DIRECTION.SELL,
         targetPrice: pendingLimitPrice,
-        takeProfitType: 1,
+        takeProfitType: CONSTANTS.TAKE_PROFIT_TYPE.PRICE,
         takeProfitValue: takeProfitSell,
-        stopLossType: 1,
+        stopLossType: CONSTANTS.STOP_LOSS_TYPE.PRICE,
         stopLossValue: stopLossSell
     };
 
@@ -349,9 +349,9 @@ it("should close pending stop position by stop loss", async () => {
         multiplicator: 5,
         direction: CONSTANTS.DIRECTION.BUY,
         targetPrice: pendingLimitPrice,
-        takeProfitType: 1,
+        takeProfitType: CONSTANTS.TAKE_PROFIT_TYPE.PRICE,
         takeProfitValue: takeProfitBuy,
-        stopLossType: 1,
+        stopLossType: CONSTANTS.STOP_LOSS_TYPE.PRICE,
         stopLossValue: stopLossBuy
     };
 
@@ -419,11 +419,11 @@ it("should close pending limit position by stop out", async () => {
         amountAssetId: CONSTANTS.ASSET_ID,
         multiplicator: 5,
         direction: CONSTANTS.DIRECTION.SELL,
-        targetPrice: pendingPrice
-        // takeProfitType: 1,
-        // takeProfitValue: takeProfitBuy,
-        // stopLossType: 1,
-        // stopLossValue: stopLossBuy
+        targetPrice: pendingPrice,
+        // takeProfitType: CONSTANTS.TAKE_PROFIT_TYPE.PRICE,
+        // takeProfitValue: takeProfitSell,
+        // stopLossType: CONSTANTS.STOP_LOSS_TYPE.PRICE,
+        // stopLossValue: stopLossSell
     };
 
     const response = await api.openPendingLimitPosition(positionData);
@@ -502,10 +502,10 @@ it("should close pending stop position by stop out", async () => {
         amountAssetId: CONSTANTS.ASSET_ID,
         multiplicator: 5,
         direction: CONSTANTS.DIRECTION.BUY,
-        targetPrice: pendingPrice
-        // takeProfitType: 1,
+        targetPrice: pendingPrice,
+        // takeProfitType: CONSTANTS.TAKE_PROFIT_TYPE.PRICE,
         // takeProfitValue: takeProfitBuy,
-        // stopLossType: 1,
+        // stopLossType: CONSTANTS.STOP_LOSS_TYPE.PRICE,
         // stopLossValue: stopLossBuy
     };
 
