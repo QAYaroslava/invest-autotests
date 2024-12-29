@@ -1,35 +1,34 @@
 const path = require('path');
+const API_CONFIG = require('./environment');
 
 module.exports = {
-    //NOTE: it's examples TODO: need to add real proto files and specify real host/port/protoPath
     services: {
         helper: {
-            host: process.env.TRADING_GRPC_HOST || 'invest-engine-prices-demo.spot-services.svc.cluster.local',
-            port: process.env.TRADING_GRPC_PORT || 80,
+            host: API_CONFIG.grpc.helper.host,
+            port: API_CONFIG.grpc.helper.port,
             protoPath: path.join(__dirname, '../proto/IGrpcHelperService.proto'),
             package: 'MyJetWallet.Sdk.GrpcSchema',
             service: 'GrpcHelperService'
         },
         invest: {
-            host: process.env.TRADING_GRPC_HOST || 'invest-engine-prices-demo.spot-services.svc.cluster.local',
-            port: process.env.TRADING_GRPC_PORT || 80,
+            host: API_CONFIG.grpc.invest.host,
+            port: API_CONFIG.grpc.invest.port,
             protoPath: path.join(__dirname, '../proto/IPriceManagerService.proto'),
             package: 'Service.InvestEngine.Prices.Grpc',
             service: 'PriceManagerService'
         },
         positionAction: {
-            host: process.env.TRADING_GRPC_HOST || 'services-invest-engine-positions.simple-spot.biz',
-            port: process.env.TRADING_GRPC_PORT || 82,
+            host: API_CONFIG.grpc.positionAction.host,
+            port: API_CONFIG.grpc.positionAction.port,
             protoPath: path.join(__dirname, '../proto/IPositionActionService.proto'),
             package: 'Service.InvestEngine.Positions.Grpc',
             service: 'PositionActionService'
         },
-
     },
     defaultOptions: {
         retryAttempts: 3,
         retryDelay: 1000,
-        timeout: 5000,
+        timeout: API_CONFIG.timeout,
         keepCase: true,
         longs: String,
         enums: String,
