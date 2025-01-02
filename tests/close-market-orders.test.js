@@ -40,7 +40,7 @@ describe('Closing market positions', () => {
 
     it("should manually close market buy position", async () => {
         // Добавляем явное ожидание для имитации реальных условий
-        await timeout(CONSTANTS.TIMEOUTS.DEFAULT)
+        await new Promise(resolve => setTimeout(resolve, CONSTANTS.TIMEOUTS.DEFAULT));
 
         expect(positionId).toBeDefined();
         await api.closeAndVerifyMarketPosition(positionId, CONSTANTS.CLOSE_REASON.MARKET_CLOSE);
@@ -66,7 +66,7 @@ describe('Closing market positions', () => {
 
     it("should manually close market sell position", async () => {
         // Добавляем явное ожидание для имитации реальных условий
-        await timeout(CONSTANTS.TIMEOUTS.DEFAULT)
+        await new Promise(resolve => setTimeout(resolve, CONSTANTS.TIMEOUTS.DEFAULT));
 
         expect(positionId).toBeDefined();
         await api.closeAndVerifyMarketPosition(positionId, CONSTANTS.CLOSE_REASON.MARKET_CLOSE);
@@ -96,7 +96,7 @@ describe('Closing market positions', () => {
         logger.info(`Instrument price set to Take Profit value: ${takeProfitBuy}`);
     
         // Таймаут, чтоб позиция успела автоматически закрыться и перейти в статус Closed
-        await timeout(CONSTANTS.TIMEOUTS.DEFAULT)
+        await new Promise(resolve => setTimeout(resolve, CONSTANTS.TIMEOUTS.DEFAULT));
     
         // Вызываем запрос на получение информации о позиции и проверяем причину закрытия позиции
         await api.verifyPositionCloseReason(positionId, CONSTANTS.CLOSE_REASON.TAKE_PROFIT);
@@ -126,7 +126,7 @@ describe('Closing market positions', () => {
         logger.info(`Instrument price set to Take Profit value: ${takeProfitSell}`);
     
         // Таймаут, чтоб позиция успела автоматически закрыться и перейти в статус Closed
-        await timeout(CONSTANTS.TIMEOUTS.DEFAULT)
+        await new Promise(resolve => setTimeout(resolve, CONSTANTS.TIMEOUTS.DEFAULT));
     
         // Вызываем запрос на получение информации о позиции и проверяем причину закрытия позиции
         await api.verifyPositionCloseReason(positionId, CONSTANTS.CLOSE_REASON.TAKE_PROFIT);
@@ -156,7 +156,7 @@ describe('Closing market positions', () => {
         logger.info(`Instrument price set to Stop Loss value: ${stopLossBuy}`);
 
         // Таймаут, чтоб позиция успела автоматически закрыться и перейти в статус Closed
-        await timeout(CONSTANTS.TIMEOUTS.DEFAULT)
+        await new Promise(resolve => setTimeout(resolve, CONSTANTS.TIMEOUTS.DEFAULT));
 
         // Вызываем запрос на получение информации о позиции и проверяем причину закрытия позиции
         await api.verifyPositionCloseReason(positionId, CONSTANTS.CLOSE_REASON.STOP_LOSS);
@@ -186,7 +186,7 @@ describe('Closing market positions', () => {
         logger.info(`Instrument price set to Stop Loss value: ${stopLossSell}`);
 
         // Таймаут, чтоб позиция успела автоматически закрыться и перейти в статус Closed
-        await timeout(CONSTANTS.TIMEOUTS.DEFAULT)
+        await new Promise(resolve => setTimeout(resolve, CONSTANTS.TIMEOUTS.DEFAULT));
 
         // Вызываем запрос на получение информации о позиции и проверяем причину закрытия позиции
         await api.verifyPositionCloseReason(positionId, CONSTANTS.CLOSE_REASON.STOP_LOSS);
@@ -209,7 +209,7 @@ describe('Closing market positions', () => {
         const stopOutPrice = await api.calculateAndSetStopOutPrice(positionId, instrumentStopOut);
         logger.info(`Calculated and set StopOutPrice: ${stopOutPrice}`);
 
-        await timeout(CONSTANTS.TIMEOUTS.DEFAULT)
+        await new Promise(resolve => setTimeout(resolve, CONSTANTS.TIMEOUTS.DEFAULT));
 
         // Вызываем запрос на получение информации о позиции и проверяем причину закрытия позиции
         await api.verifyPositionCloseReason(positionId, CONSTANTS.CLOSE_REASON.LIQUIDATION);
@@ -229,14 +229,13 @@ describe('Closing market positions', () => {
 
         positionId = await api.openAndVerifyMarketPosition(positionData, initialPrice, CONSTANTS.POSITION_STATUS.OPENED);
 
-        await timeout(CONSTANTS.TIMEOUTS.DEFAULT)
+        await new Promise(resolve => setTimeout(resolve, CONSTANTS.TIMEOUTS.DEFAULT));
 
         // Calculate and set StopOut price using the new method
         const stopOutPrice = await api.calculateAndSetStopOutPrice(positionId, instrumentStopOut);
         logger.info(`Calculated and set StopOutPrice: ${stopOutPrice}`);
 
-        await timeout(CONSTANTS.TIMEOUTS.DEFAULT)
-
+        await new Promise(resolve => setTimeout(resolve, CONSTANTS.TIMEOUTS.DEFAULT));
         // Вызываем запрос на получение информации о позиции и проверяем причину закрытия позиции
         await api.verifyPositionCloseReason(positionId, CONSTANTS.CLOSE_REASON.LIQUIDATION);
     }, CONSTANTS.TIMEOUTS.TEST);

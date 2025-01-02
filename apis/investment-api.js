@@ -186,6 +186,38 @@ class InvestmentAPI {
     }
   }
 
+  async verifyRollover(positionId, expectedRollover) {
+    try {
+        logger.info(`Verifying rollover for position ID: ${positionId}`);
+
+        const getPositionResponse = await this.getPositionById(positionId);
+
+        // Перевірка статусу відповіді
+        if (getPositionResponse.status !== 200) {
+            throw new Error(`Failed to get position details: ${getPositionResponse.data}`);
+        }
+
+        // Отримання ролловера
+        const positionData = getPositionResponse.data?.data?.position;
+        const actualRollover = positionData?.rollOver;
+
+        logger.info(`Actual rollover: ${actualRollover}, Expected rollover: ${expectedRollover}`);
+
+        // Перевірка ролловера
+        if (actualRollover !== expectedRollover) {
+            throw new Error(
+                `Unexpected rollover for position ${positionId}. Expected: ${expectedRollover}, received: ${actualRollover}`
+            );
+        }
+
+        return actualRollover;
+
+    } catch (error) {
+        logger.error('Failed in verifyRollover:', error);
+        throw error;
+    }
+}
+
   async openAndVerifyMarketPosition(positionData, price = 1,
       expectedStatus = CONSTANTS.POSITION_STATUS.OPENED) {
       try {
