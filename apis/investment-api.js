@@ -290,7 +290,7 @@ async verifyPositionCloseReason(positionId, expectedCloseReason) {
 
       if (closeReason !== expectedCloseReason) {
           throw new Error(
-              `Unexpected close reason for position ${positionId}. Expected: ${expectedCloseReason}, receive: ${closeReason}`
+              `Unexpected close reason for position ${positionId}. Expected: ${expectedCloseReason}, received: ${closeReason}`
           );
       }
 
@@ -299,6 +299,91 @@ async verifyPositionCloseReason(positionId, expectedCloseReason) {
 
   } catch (error) {
       logger.error('Failed in verifyPositionCloseReason:', error);
+      throw error;
+  }
+}
+
+async openAndVerifyPendingPosition(positionData) {
+  try {
+      const response = await this.openPendingLimitPosition(positionData);
+
+      if (response.status !== 200) {
+          throw new Error(`Failed to open pending position: ${response.data}`);
+      }
+      const positionId = response.data?.data?.position?.id;
+      const status = response.data?.data?.position?.status;
+
+      logger.info(`Position ID: ${positionId}`);
+      logger.info(`Initial position status: ${status}`);
+
+      if (!positionId || status !== CONSTANTS.POSITION_STATUS.PENDING) {
+          throw new Error(`Position ${positionId} not in Pending status. Current status: ${status}`);
+      }
+
+      return positionId;
+
+  } catch (error) {
+      logger.error('Failed in openAndVerifyPendingPosition:', error);
+      throw error;
+  }
+}
+
+async openAndVerifyPendingStopPosition(positionData) {
+  try {
+      const response = await this.openPendingStopPosition(positionData);
+
+      if (response.status !== 200) {
+          throw new Error(`Failed to open pending stop position: ${response.data}`);
+      }
+
+      const positionId = response.data?.data?.position?.id;
+      const status = response.data?.data?.position?.status;
+
+      logger.info(`Position ID: ${positionId}`);
+      logger.info(`Initial position status: ${status}`);
+
+      if (!positionId || status !== CONSTANTS.POSITION_STATUS.PENDING) {
+          throw new Error(`Position ${positionId} not in Pending status. Current status: ${status}`);
+      }
+
+      return positionId;
+
+  } catch (error) {
+      logger.error('Failed in openAndVerifyPendingStopPosition:', error);
+      throw error;
+  }
+}
+
+async verifyOpenedPosition(positionId, expectedOpenPrice) {
+  try {
+      logger.info(`Verifying that position ${positionId} is opened`);
+
+      const getPositionResponse = await this.getPositionById(positionId);
+
+      if (getPositionResponse.status !== 200) {
+          throw new Error(`Failed to get position details: ${getPositionResponse.data}`);
+      }
+
+      const positionData = getPositionResponse.data?.data?.position;
+      const status = positionData?.status;
+      const openPrice = positionData?.openPrice;
+
+      logger.info(`Position status: ${status}`);
+      logger.info(`Position open price: ${openPrice}`);
+
+      if (status !== CONSTANTS.POSITION_STATUS.OPENED) {
+          throw new Error(`Position ${positionId} is not in Opened status. Current status: ${status}`);
+      }
+
+      if (openPrice !== expectedOpenPrice) {
+          throw new Error(`Unexpected open price for position ${positionId}. Expected: ${expectedOpenPrice}, received: ${openPrice}`);
+      }
+
+      logger.info(`Position ${positionId} successfully opened at price: ${openPrice}`);
+      return { status, openPrice };
+
+  } catch (error) {
+      logger.error('Failed in verifyOpenedPosition:', error);
       throw error;
   }
 }

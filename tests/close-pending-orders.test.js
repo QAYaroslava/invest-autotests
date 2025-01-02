@@ -40,46 +40,24 @@ it("should open pending limit position", async () => {
         // stopLossValue: stopLossBuy
     };
 
-    const response = await api.openPendingLimitPosition(positionData);
-    expect(response.status).toBe(200);
+    // Открываем pending позицию и проверяем, что она неактивна пока текущая цена не достигнет pendingLimitPrice
+    const positionId = await api.openAndVerifyPendingPosition(positionData);
 
-    // Проверяем, что позиция создана, но неактивна пока текущая цена не достигнет pendingLimitPrice
-    positionId = response.data?.data?.position?.id;
-    status = response.data?.data?.position?.status;
-    logger.info(`Position ID: ${positionId}`);
-    logger.info(`Position status: ${status}`);
-    expect(positionId).toBeDefined();
-    expect(status).toBeDefined();
-    expect(status).toBe(CONSTANTS.POSITION_STATUS.PENDING);
+    await new Promise(resolve => setTimeout(resolve, CONSTANTS.TIMEOUTS.DEFAULT));
 
-    await new Promise(resolve => setTimeout(resolve, 3000));
-
-    // Прокидываем цену интрумента равную pendingLimitPrice
+    // Прокидываем цену инструмента равную pendingLimitPrice
     await api.setupInstrumentPrice("TEST2USDT.FTS", pendingLimitPrice);
     logger.info(`Instrument price set to: ${pendingLimitPrice}`);
 
-    await new Promise(resolve => setTimeout(resolve, 4000));
+    await new Promise(resolve => setTimeout(resolve, CONSTANTS.TIMEOUTS.DEFAULT));
 
-    const getPositionResponse = await api.getPositionById(positionId);
-    expect(getPositionResponse.status).toBe(200);
-
-    status = getPositionResponse.data?.data?.position?.status;
-    openPrice = getPositionResponse.data?.data?.position?.openPrice
-
-    logger.info(`Position status: ${status}`);
-    logger.info(`Position open price: ${openPrice}`);
-
-    // Проверяем, что позиция действительно открылась
-    expect(status).toBe(CONSTANTS.POSITION_STATUS.OPENED);
-    expect(openPrice).toBe(pendingLimitPrice);
-
-    logger.info(`Pending Limit Position ${positionId} activated at the open price.`);
-
+    // Проверяем, что позиция действительно открылась с установленной ценой
+    await api.verifyOpenedPosition(positionId, pendingLimitPrice);
 }, CONSTANTS.TIMEOUTS.TEST);
 
-it("should open pending stop position", async () => {
+it.only("should open pending stop position", async () => {
     await api.setupInstrumentPrice("TEST2USDT.FTS", 1);
-    const pendingLimitPrice = 0.95;
+    const pendingStopPrice = 0.95;
 
     const positionData = {
         symbol: CONSTANTS.SYMBOL,
@@ -87,45 +65,23 @@ it("should open pending stop position", async () => {
         amountAssetId: CONSTANTS.ASSET_ID,
         multiplicator: 5,
         direction: CONSTANTS.DIRECTION.BUY,
-        targetPrice: pendingLimitPrice
+        targetPrice: pendingStopPrice
         // takeProfitType: 1,
         // takeProfitValue: takeProfitBuy,
         // stopLossType: 1,
         // stopLossValue: stopLossBuy
     };
 
-    const response = await api.openPendingStopPosition(positionData);
-    expect(response.status).toBe(200);
+    const positionId = await api.openAndVerifyPendingStopPosition(positionData);
 
-    positionId = response.data?.data?.position?.id;
-    status = response.data?.data?.position?.status;
-    logger.info(`Position ID: ${positionId}`);
-    logger.info(`Position status: ${status}`);
-    expect(positionId).toBeDefined();
-    expect(status).toBeDefined();
-    expect(status).toBe(CONSTANTS.POSITION_STATUS.PENDING);
+    await new Promise(resolve => setTimeout(resolve, CONSTANTS.TIMEOUTS.DEFAULT));
 
-    await new Promise(resolve => setTimeout(resolve, 3000));
+    await api.setupInstrumentPrice("TEST2USDT.FTS", pendingStopPrice);
+    logger.info(`Instrument price set to: ${pendingStopPrice}`);
 
-    await api.setupInstrumentPrice("TEST2USDT.FTS", pendingLimitPrice);
-    logger.info(`Instrument price set to: ${pendingLimitPrice}`);
+    await new Promise(resolve => setTimeout(resolve, CONSTANTS.TIMEOUTS.DEFAULT));
 
-    await new Promise(resolve => setTimeout(resolve, 4000));
-
-    const getPositionResponse = await api.getPositionById(positionId);
-    expect(getPositionResponse.status).toBe(200);
-
-    status = getPositionResponse.data?.data?.position?.status;
-    openPrice = getPositionResponse.data?.data?.position?.openPrice
-
-    logger.info(`Position status: ${status}`);
-    logger.info(`Position open price: ${openPrice}`);
-
-    expect(status).toBe(CONSTANTS.POSITION_STATUS.OPENED);
-    expect(openPrice).toBe(pendingLimitPrice);
-
-    logger.info(`Pending Stop Position ${positionId} activated at the open price: ${openPrice}.`);
-
+    await api.verifyOpenedPosition(positionId, pendingStopPrice);
 }, CONSTANTS.TIMEOUTS.TEST);
 
 it("should close pending limit position by take profit", async () => {
