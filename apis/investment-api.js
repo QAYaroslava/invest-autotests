@@ -214,6 +214,63 @@ class InvestmentAPI {
       }
   }
 
+  async closeAndVerifyMarketPosition(positionId, expectedCloseReason) {
+    try {
+        if (!positionId) {
+            throw new Error('Position ID is not defined');
+        }
+
+        logger.info(`Closing market position with ID: ${positionId}`);
+        const response = await this.closeMarketPosition(positionId);
+
+        if (response.status !== 200) {
+            throw new Error(`Failed to close market position: ${response.data}`);
+        }
+
+        const closeReason = response.data?.data?.position?.closeReason;
+        logger.info(`Position close reason: ${closeReason}`);
+
+        if (closeReason !== expectedCloseReason) {
+            throw new Error(
+                `Unexpected close reason: ${closeReason}. Expected: ${expectedCloseReason}`
+            );
+        }
+
+        return closeReason;
+
+    } catch (error) {
+        logger.error('Failed in closeAndVerifyMarketPosition:', error);
+        throw error;
+    }
+}
+
+async verifyPositionCloseReason(positionId, expectedCloseReason) {
+  try {
+      logger.info(`Verifying close reason for position ID: ${positionId}`);
+      const getPositionResponse = await this.getPositionById(positionId);
+
+      if (getPositionResponse.status !== 200) {
+          throw new Error(`Failed to get position details: ${getPositionResponse.data}`);
+      }
+
+      const closeReason = getPositionResponse.data?.data?.position?.closeReason;
+      logger.info(`Close reason for position ${positionId}: ${closeReason}`);
+
+      if (closeReason !== expectedCloseReason) {
+          throw new Error(
+              `Unexpected close reason for position ${positionId}. Expected: ${expectedCloseReason}, receive: ${closeReason}`
+          );
+      }
+
+      logger.info(`Close reason verified successfully for position ${positionId}`);
+      return closeReason;
+
+  } catch (error) {
+      logger.error('Failed in verifyPositionCloseReason:', error);
+      throw error;
+  }
+}
+
   /**
    * Calculates and sets StopOut price for a position
    * @param {string} positionId - Position ID

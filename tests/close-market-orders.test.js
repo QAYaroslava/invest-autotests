@@ -2,6 +2,7 @@ const InvestmentAPI = require('../apis/investment-api');
 const logger = require('../helpers/logger');
 const { generateAuthToken } = require("../helpers/authTgToken");
 const CONSTANTS = require('../config/constants');
+const { timeout } = require('../config/environment');
 
 describe('Closing market positions', () => {
     let api;
@@ -39,14 +40,10 @@ describe('Closing market positions', () => {
 
     it("should manually close market buy position", async () => {
         // Добавляем явное ожидание для имитации реальных условий
-        await new Promise(resolve => setTimeout(resolve, 4000));
+        await timeout(CONSTANTS.TIMEOUTS.DEFAULT)
 
         expect(positionId).toBeDefined();
-        const response = await api.closeMarketPosition(positionId);
-        expect(response.status).toBe(200);
-        const closeReason = response.data?.data?.position?.closeReason;
-        logger.info(`Position close reason: ${closeReason}`);
-        expect(closeReason).toBe(CONSTANTS.CLOSE_REASON.MARKET_CLOSE);
+        await api.closeAndVerifyMarketPosition(positionId, CONSTANTS.CLOSE_REASON.MARKET_CLOSE);
     }, CONSTANTS.TIMEOUTS.TEST);
 
     it("should open market sell position", async () => {
@@ -69,14 +66,10 @@ describe('Closing market positions', () => {
 
     it("should manually close market sell position", async () => {
         // Добавляем явное ожидание для имитации реальных условий
-        await new Promise(resolve => setTimeout(resolve, 4000));
+        await timeout(CONSTANTS.TIMEOUTS.DEFAULT)
 
         expect(positionId).toBeDefined();
-        const response = await api.closeMarketPosition(positionId);
-        expect(response.status).toBe(200);
-        const closeReason = response.data?.data?.position?.closeReason;
-        logger.info(`Position close reason: ${closeReason}`);
-        expect(closeReason).toBe(CONSTANTS.CLOSE_REASON.MARKET_CLOSE);
+        await api.closeAndVerifyMarketPosition(positionId, CONSTANTS.CLOSE_REASON.MARKET_CLOSE);
     }, CONSTANTS.TIMEOUTS.TEST);
 
     it("should close market buy position by take profit", async () => {
@@ -103,20 +96,10 @@ describe('Closing market positions', () => {
         logger.info(`Instrument price set to Take Profit value: ${takeProfitBuy}`);
     
         // Таймаут, чтоб позиция успела автоматически закрыться и перейти в статус Closed
-        await new Promise(resolve => setTimeout(resolve, 3000));
+        await timeout(CONSTANTS.TIMEOUTS.DEFAULT)
     
-        // Вызываем запрос на получение информации о позиции
-        const getPositionResponse = await api.getPositionById(positionId);
-        expect(getPositionResponse.status).toBe(200);
-        logger.info(`Position ${positionId} closed successfully.`);
-        logger.info(`Position data: ${JSON.stringify(getPositionResponse.data)}`);
-    
-        // Проверяем причину закрытия позиции
-        const closeReason = getPositionResponse.data?.data?.position?.closeReason;
-        logger.info(`Position close reason: ${closeReason}`);
-        expect(closeReason).toBe(CONSTANTS.CLOSE_REASON.TAKE_PROFIT);
-    
-        logger.info(`Position ${positionId} closed by Take Profit.`);
+        // Вызываем запрос на получение информации о позиции и проверяем причину закрытия позиции
+        await api.verifyPositionCloseReason(positionId, CONSTANTS.CLOSE_REASON.TAKE_PROFIT);
     }, CONSTANTS.TIMEOUTS.TEST);
 
     it("should close market sell position by take profit", async () => {
@@ -143,20 +126,10 @@ describe('Closing market positions', () => {
         logger.info(`Instrument price set to Take Profit value: ${takeProfitSell}`);
     
         // Таймаут, чтоб позиция успела автоматически закрыться и перейти в статус Closed
-        await new Promise(resolve => setTimeout(resolve, 3000));
+        await timeout(CONSTANTS.TIMEOUTS.DEFAULT)
     
-        // Вызываем запрос на получение информации о позиции
-        const getPositionResponse = await api.getPositionById(positionId);
-        expect(getPositionResponse.status).toBe(200);
-        logger.info(`Position ${positionId} closed successfully.`);
-        logger.info(`Position data: ${JSON.stringify(getPositionResponse.data)}`);
-    
-        // Проверяем причину закрытия позиции
-        const closeReason = getPositionResponse.data?.data?.position?.closeReason;
-        logger.info(`Position close reason: ${closeReason}`);
-        expect(closeReason).toBe(CONSTANTS.CLOSE_REASON.TAKE_PROFIT);
-    
-        logger.info(`Position ${positionId} closed by Take Profit.`);
+        // Вызываем запрос на получение информации о позиции и проверяем причину закрытия позиции
+        await api.verifyPositionCloseReason(positionId, CONSTANTS.CLOSE_REASON.TAKE_PROFIT);
     }, CONSTANTS.TIMEOUTS.TEST);
 
     it("should close market buy position by stop loss", async () => {
@@ -183,20 +156,10 @@ describe('Closing market positions', () => {
         logger.info(`Instrument price set to Stop Loss value: ${stopLossBuy}`);
 
         // Таймаут, чтоб позиция успела автоматически закрыться и перейти в статус Closed
-        await new Promise(resolve => setTimeout(resolve, 3000));
+        await timeout(CONSTANTS.TIMEOUTS.DEFAULT)
 
-        // Вызываем запрос на получение информации о позиции
-        const getPositionResponse = await api.getPositionById(positionId);
-        expect(getPositionResponse.status).toBe(200);
-        logger.info(`Position ${positionId} closed successfully.`);
-        logger.info(`Position data: ${JSON.stringify(getPositionResponse.data)}`);
-
-        // Проверяем причину закрытия позиции
-        const closeReason = getPositionResponse.data?.data?.position?.closeReason;
-        logger.info(`Position close reason: ${closeReason}`);
-        expect(closeReason).toBe(CONSTANTS.CLOSE_REASON.STOP_LOSS);
-
-        logger.info(`Position ${positionId} closed by Stop Loss.`);
+        // Вызываем запрос на получение информации о позиции и проверяем причину закрытия позиции
+        await api.verifyPositionCloseReason(positionId, CONSTANTS.CLOSE_REASON.STOP_LOSS);
     }, CONSTANTS.TIMEOUTS.TEST);
 
     it("should close market sell position by stop loss", async () => {
@@ -223,20 +186,10 @@ describe('Closing market positions', () => {
         logger.info(`Instrument price set to Stop Loss value: ${stopLossSell}`);
 
         // Таймаут, чтоб позиция успела автоматически закрыться и перейти в статус Closed
-        await new Promise(resolve => setTimeout(resolve, 3000));
+        await timeout(CONSTANTS.TIMEOUTS.DEFAULT)
 
-        // Вызываем запрос на получение информации о позиции
-        const getPositionResponse = await api.getPositionById(positionId);
-        expect(getPositionResponse.status).toBe(200);
-        logger.info(`Position ${positionId} closed successfully.`);
-        logger.info(`Position data: ${JSON.stringify(getPositionResponse.data)}`);
-
-        // Проверяем причину закрытия позиции
-        const closeReason = getPositionResponse.data?.data?.position?.closeReason;
-        logger.info(`Position close reason: ${closeReason}`);
-        expect(closeReason).toBe(CONSTANTS.CLOSE_REASON.STOP_LOSS);
-
-        logger.info(`Position ${positionId} closed by Stop Loss.`);
+        // Вызываем запрос на получение информации о позиции и проверяем причину закрытия позиции
+        await api.verifyPositionCloseReason(positionId, CONSTANTS.CLOSE_REASON.STOP_LOSS);
     }, CONSTANTS.TIMEOUTS.TEST);
 
     it("should close market sell position automatically if price deviates by Stop Out", async () => {
@@ -256,17 +209,10 @@ describe('Closing market positions', () => {
         const stopOutPrice = await api.calculateAndSetStopOutPrice(positionId, instrumentStopOut);
         logger.info(`Calculated and set StopOutPrice: ${stopOutPrice}`);
 
-        await new Promise(resolve => setTimeout(resolve, 4000));
+        await timeout(CONSTANTS.TIMEOUTS.DEFAULT)
 
-        const getClosedPositionResponse = await api.getPositionById(positionId);
-        expect(getClosedPositionResponse.status).toBe(200);
-
-        // Проверяем причину закрытия позиции
-        const closeReason = getClosedPositionResponse.data?.data?.position?.closeReason;
-        logger.info(`Position close reason: ${closeReason}`);
-        expect(closeReason).toBe(CONSTANTS.CLOSE_REASON.LIQUIDATION);
-
-        logger.info(`Position ${positionId} closed due to price deviation.`);
+        // Вызываем запрос на получение информации о позиции и проверяем причину закрытия позиции
+        await api.verifyPositionCloseReason(positionId, CONSTANTS.CLOSE_REASON.LIQUIDATION);
     }, CONSTANTS.TIMEOUTS.TEST);
 
     it("should close market buy position automatically if price deviates by Stop Out", async () => {
@@ -283,19 +229,15 @@ describe('Closing market positions', () => {
 
         positionId = await api.openAndVerifyMarketPosition(positionData, initialPrice, CONSTANTS.POSITION_STATUS.OPENED);
 
-        await new Promise(resolve => setTimeout(resolve, 3000));
+        await timeout(CONSTANTS.TIMEOUTS.DEFAULT)
 
         // Calculate and set StopOut price using the new method
         const stopOutPrice = await api.calculateAndSetStopOutPrice(positionId, instrumentStopOut);
         logger.info(`Calculated and set StopOutPrice: ${stopOutPrice}`);
 
-        await new Promise(resolve => setTimeout(resolve, 4000));
+        await timeout(CONSTANTS.TIMEOUTS.DEFAULT)
 
-        const getClosedPositionResponse = await api.getPositionById(positionId);
-        expect(getClosedPositionResponse.status).toBe(200);
-        
-        const closeReason = getClosedPositionResponse.data?.data?.position?.closeReason;
-        logger.info(`Position close reason: ${closeReason}`);
-        expect(closeReason).toBe(CONSTANTS.CLOSE_REASON.LIQUIDATION);
+        // Вызываем запрос на получение информации о позиции и проверяем причину закрытия позиции
+        await api.verifyPositionCloseReason(positionId, CONSTANTS.CLOSE_REASON.LIQUIDATION);
     }, CONSTANTS.TIMEOUTS.TEST);
 })
