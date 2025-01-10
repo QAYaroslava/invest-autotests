@@ -303,7 +303,7 @@ async verifyPositionCloseReason(positionId, expectedCloseReason) {
   }
 }
 
-async openAndVerifyPendingPosition(positionData) {
+async openAndVerifyPendingLimitPosition(positionData) {
   try {
       const response = await this.openPendingLimitPosition(positionData);
 
